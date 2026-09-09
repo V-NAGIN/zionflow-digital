@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ZionFlow Growth Pro</title>
+
+  <style>
+    :root {
+      --navy: #0B1F3A;
+      --navy-2: #102B4D;
+      --gold: #C9A227;
+      --gold-2: #E4C45A;
+      --bg: #F5F7FA;
+      --white: #FFFFFF;
+      --text: #142238;
+      --muted: #6D7888;
+      --border: #E1E6EC;
+      --success: #2E7D5B;
+      --warning: #B7791F;
+      --danger: #B54747;
+      --sidebar-width: 260px;
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-width);
+      background: var(--navy);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 4px 12px 26px;
+    }
+
+    .brand-name {
+      font-size: 23px;
+      font-weight: 850;
+      letter-spacing: -0.7px;
+    }
+
+    .brand-name span {
+      color: var(--gold-2);
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.62);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .pro-pill {
+      margin: 0 8px 24px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(201, 162, 39, 0.13);
+      border: 1px solid rgba(228, 196, 90, 0.28);
+      color: var(--gold-2);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-align: center;
+    }
+
+    .nav-section {
+      margin-bottom: 22px;
+    }
+
+    .nav-label {
+      padding: 0 12px 8px;
+      color: rgba(255,255,255,0.38);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    .nav-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,0.72);
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      transition: .2s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(201,162,39,0.15);
+      color: white;
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding-top: 20px;
+    }
+
+    .support-card {
+      padding: 14px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .support-title {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .support-text {
+      color: rgba(255,255,255,0.55);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* MAIN */
+
+    .main {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 72px;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .mobile-menu {
+      display: none;
+      border: 0;
+      background: #EEF2F6;
+      color: var(--navy);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 20px;
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notification {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    /* HERO */
+
+    .hero {
+      background:
+        radial-gradient(circle at 85% 20%, rgba(228,196,90,.22), transparent 28%),
+        linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: white;
+      border-radius: var(--radius);
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -100px;
+      bottom: -130px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .hero-eyebrow {
+      color: var(--gold-2);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -1.3px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      max-width: 670px;
+      color: rgba(255,255,255,.72);
+      line-height: 1.65;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* GRID */
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 20px;
+    }
+
+    .two-grid {
+      grid-template-columns: 1.35fr .65fr;
+      margin-bottom: 20px;
+    }
+
+    .three-grid {
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid rgba(11,31,58,.05);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 10px 35px rgba(11,31,58,.055);
+    }
+
+    .stat-card {
+      min-height: 120px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 9px;
+    }
+
+    .stat-value {
+      color: var(--navy);
+      font-size: 28px;
+      font-weight: 850;
+      letter-spacing: -1px;
+    }
+
+    .stat-meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      color: var(--navy);
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: -.3px;
+    }
+
+    .card-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    /* SCORE */
+
+    .score-layout {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .score-ring {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, white 61%, transparent 62%),
+        conic-gradient(var(--gold) 72.5%, #E7EBEF 0);
+    }
+
+    .score-number {
+      color: var(--navy);
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+
+    .score-number small {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .score-level {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(201,162,39,.11);
+      color: var(--warning);
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .focus-box {
+      padding: 15px;
+      border-radius: 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .focus-title {
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 850;
+      margin-bottom: 4px;
+    }
+
+    .focus-text {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #E7EBEF;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      border-radius: inherit;
+    }
+
+    /* TASKS */
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #FBFCFD;
+    }
+
+    .task-check {
+      width: 21px;
+      height: 21px;
+      border: 2px solid #C8D0D9;
+      border-radius: 7px;
+      flex-shrink: 0;
+      background: white;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      transition: .2s ease;
+    }
+
+    .task.completed .task-check {
+      border-color: var(--success);
+      background: var(--success);
+      color: white;
+    }
+
+    .task-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-name {
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .task-meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .priority {
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .priority.high {
+      color: var(--danger);
+      background: rgba(181,71,71,.09);
+    }
+
+    .priority.medium {
+      color: var(--warning);
+      background: rgba(183,121,31,.10);
+    }
+
+    /* AI CARD */
+
+    .ai-card {
+      background: linear-gradient(135deg, #F8FAFC, #FFFFFF);
+    }
+
+    .ai-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: var(--navy);
+      color: var(--gold-2);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .ai-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-name {
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .ai-status {
+      color: var(--success);
+      font-size: 10px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .ai-message {
+      margin: 18px 0;
+      padding: 15px;
+      border-radius: 15px;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .ai-message strong {
+      color: var(--navy);
+    }
+
+    .ai-input {
+      display: flex;
+      gap: 9px;
+    }
+
+    .ai-input input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 13px;
+      outline: none;
+      background: white;
+    }
+
+    .ai-input input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,162,39,.10);
+    }
+
+    /* BUTTONS */
+
+    .btn {
+      border: 0;
+      min-height: 46px;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-weight: 800;
+      transition: .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-2);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #EEF2F6;
+      color: var(--navy);
+    }
+
+    .btn-secondary:hover {
+      background: #E4E9EF;
+    }
+
+    .btn-small {
+      min-height: 36px;
+      padding: 0 12px;
+      font-size: 11px;
+    }
+
+    /* AREAS */
+
+    .area-list {
+      display: grid;
+      gap: 11px;
+    }
+
+    .area {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #FBFCFD;
+    }
+
+    .area-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .area-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .area-score {
+      font-size: 11px;
+      font-weight: 850;
+      color: var(--gold);
+    }
+
+    /* GOALS */
+
+    .goal {
+      padding: 14px;
+      border-radius: 15px;
+      background: #FBFCFD;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .goal:last-child {
+      margin-bottom: 0;
+    }
+
+    .goal-title {
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1050px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .two-grid,
+      .three-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+
+      :root {
+        --sidebar-width: 0px;
+      }
+
+      .sidebar {
+        transform: translateX(-270px);
+        transition: transform .25s ease;
+        width: 260px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .topbar {
+        padding: 0 16px;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      .topbar-title {
+        display: none;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .hero {
+        padding: 25px 21px;
+        border-radius: 19px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .stat-card {
+        min-height: 105px;
+        padding: 17px;
+      }
+
+      .stat-value {
+        font-size: 23px;
+      }
+
+      .score-layout {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .score-layout .score-details {
+        width: 100%;
+        text-align: left;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 19px;
+      }
+
+      .ai-input {
+        flex-direction: column;
+      }
+
+      .ai-input .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-right {
+        gap: 7px;
+      }
+
+      .notification {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+      <div class="brand-name">
+        Zion<span>Flow</span>
+      </div>
+
+      <div class="brand-subtitle">
+        Digital Growth Platform
+      </div>
+    </div>
+
+    <div class="pro-pill">
+      GROWTH PRO
+    </div>
+
+    <div class="nav-section">
+
+      <div class="nav-label">
+        Workspace
+      </div>
+
+      <nav class="nav">
+
+        <button class="nav-item active">
+          <span class="nav-icon">⌂</span>
+          Dashboard
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">◉</span>
+          Growth Score
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">✓</span>
+          My Growth Plan
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">✦</span>
+          AI Growth Assistant
+        </button>
+
+      </nav>
+
+    </div>
+
+    <div class="nav-section">
+
+      <div class="nav-label">
+        Growth Tools
+      </div>
+
+      <nav class="nav">
+
+        <button class="nav-item">
+          <span class="nav-icon">✎</span>
+          Content Studio
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">↗</span>
+          Marketing & Leads
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">▣</span>
+          Business Tools
+        </button>
+
+        <button class="nav-item">
+          <span class="nav-icon">◒</span>
+          Progress
+        </button>
+
+      </nav>
+
+    </div>
+
+    <div class="sidebar-bottom">
+
+      <div class="support-card">
+        <div class="support-title">
+          Need help?
+        </div>
+
+        <div class="support-text">
+          Your ZionFlow Growth Pro workspace is built to help you decide what to do next.
+        </div>
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN -->
+
+  <main class="main">
+
+    <header class="topbar">
+
+      <button
+        class="mobile-menu"
+        onclick="toggleSidebar()"
+        aria-label="Open menu"
+      >
+        ☰
+      </button>
+
+      <div class="topbar-title">
+        Growth Pro Workspace
+      </div>
+
+      <div class="topbar-right">
+
+        <button class="notification" aria-label="Notifications">
+          ♢
+        </button>
+
+        <div class="avatar" id="avatar">
+          ZF
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <div class="content">
+
+      <!-- HERO -->
+
+      <section class="hero">
+
+        <div class="hero-eyebrow">
+          ZionFlow Growth Pro
+        </div>
+
+        <h1>
+          Build. Grow. Scale.
+        </h1>
+
+        <p>
+          Your personalised growth workspace brings your strategy,
+          actions, content, marketing tools and AI growth support
+          into one place.
+        </p>
+
+      </section>
+
+
+      <!-- STATS -->
+
+      <section class="grid stats-grid">
+
+        <div class="card stat-card">
+
+          <div class="stat-label">
+            Growth Score
+          </div>
+
+          <div class="stat-value">
+            58<span style="font-size:15px;color:var(--muted)">/80</span>
+          </div>
+
+          <div class="stat-meta">
+            Growing
+          </div>
+
+        </div>
+
+
+        <div class="card stat-card">
+
+          <div class="stat-label">
+            Active Tasks
+          </div>
+
+          <div class="stat-value">
+            18
+          </div>
+
+          <div class="stat-meta">
+            6 completed this month
+          </div>
+
+        </div>
+
+
+        <div class="card stat-card">
+
+          <div class="stat-label">
+            Goals
+          </div>
+
+          <div class="stat-value">
+            3
+          </div>
+
+          <div class="stat-meta">
+            1 currently on track
+          </div>
+
+        </div>
+
+
+        <div class="card stat-card">
+
+          <div class="stat-label">
+            Plan Progress
+          </div>
+
+          <div class="stat-value">
+            33%
+          </div>
+
+          <div class="stat-meta">
+            Week 1 of 4
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SCORE + AI -->
+
+      <section class="grid two-grid">
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+              <div class="card-title">
+                Your Growth Score
+              </div>
+
+              <div class="card-subtitle">
+                Based on your current business profile and digital presence.
+              </div>
+            </div>
+
+            <button class="btn btn-secondary btn-small">
+              View score
+            </button>
+
+          </div>
+
+
+          <div class="score-layout">
+
+            <div>
+
+              <div class="score-ring">
+
+                <div>
+                  <div class="score-number">
+                    58<small>/80</small>
+                  </div>
+
+                  <div class="score-level">
+                    Growing
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="score-details">
+
+              <div class="focus-box">
+
+                <div class="focus-title">
+                  Current Focus
+                </div>
+
+                <div class="focus-text">
+                  Social visibility, lead generation and improving
+                  your customer journey are currently your biggest opportunities.
+                </div>
+
+              </div>
+
+              <div class="focus-box">
+
+                <div class="focus-title">
+                  Next Score Target
+                </div>
+
+                <div class="focus-text">
+                  Reach 65/80 by completing your highest-priority actions.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- AI -->
+
+        <div class="card ai-card">
+
+          <div class="ai-heading">
+
+            <div class="ai-avatar">
+              Z
+            </div>
+
+            <div>
+
+              <div class="ai-name">
+                ZionFlow AI Growth Assistant
+              </div>
+
+              <div class="ai-status">
+                ● Ready to help
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="ai-message">
+
+            <strong>Good morning.</strong>
+
+            Based on your current growth profile,
+            your biggest opportunity is improving how
+            you turn social media attention into enquiries.
+
+            I'd recommend focusing on your offer,
+            calls-to-action and follow-up process this week.
+
+          </div>
+
+
+          <div class="ai-input">
+
+            <input
+              id="aiQuestion"
+              type="text"
+              placeholder="Ask ZionFlow about your business..."
+              onkeydown="handleAIKey(event)"
+            >
+
+            <button
+              class="btn btn-primary"
+              onclick="askAI()"
+            >
+              Ask ZionFlow
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- TASKS + GOALS -->
+
+      <section class="grid two-grid">
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <div class="card-title">
+                Next Actions
+              </div>
+
+              <div class="card-subtitle">
+                The highest-priority actions for your growth plan.
+              </div>
+
+            </div>
+
+            <button class="btn btn-secondary btn-small">
+              View all
+            </button>
+
+          </div>
+
+
+          <div class="task-list">
+
+            <div class="task" onclick="toggleTask(this)">
+
+              <div class="task-check"></div>
+
+              <div class="task-text">
+
+                <div class="task-name">
+                  Clarify your main customer offer
+                </div>
+
+                <div class="task-meta">
+                  Positioning · 20 minutes
+                </div>
+
+              </div>
+
+              <span class="priority high">
+                High
+              </span>
+
+            </div>
+
+
+            <div class="task" onclick="toggleTask(this)">
+
+              <div class="task-check"></div>
+
+              <div class="task-text">
+
+                <div class="task-name">
+                  Update your WhatsApp Business profile
+                </div>
+
+                <div class="task-meta">
+                  Customer Journey · 15 minutes
+                </div>
+
+              </div>
+
+              <span class="priority high">
+                High
+              </span>
+
+            </div>
+
+
+            <div class="task" onclick="toggleTask(this)">
+
+              <div class="task-check"></div>
+
+              <div class="task-text">
+
+                <div class="task-name">
+                  Create three educational social posts
+                </div>
+
+                <div class="task-meta">
+                  Content · 45 minutes
+                </div>
+
+              </div>
+
+              <span class="priority medium">
+                Medium
+              </span>
+
+            </div>
+
+
+            <div class="task" onclick="toggleTask(this)">
+
+              <div class="task-check"></div>
+
+              <div class="task-text">
+
+                <div class="task-name">
+                  Follow up with recent enquiries
+                </div>
+
+                <div class="task-meta">
+                  Lead Generation · 30 minutes
+                </div>
+
+              </div>
+
+              <span class="priority high">
+                High
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <div class="card-title">
+                Your Goals
+              </div>
+
+              <div class="card-subtitle">
+                What you're working toward.
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="goal">
+
+            <div class="goal-title">
+              Generate more qualified leads
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:42%"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div class="goal">
+
+            <div class="goal-title">
+              Improve social visibility
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:61%"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div class="goal">
+
+            <div class="goal-title">
+              Improve customer conversion
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:28%"
+              ></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- GROWTH AREAS -->
+
+      <section class="card">
+
+        <div class="card-header">
+
+          <div>
+
+            <div class="card-title">
+              Growth Areas
+            </div>
+
+            <div class="card-subtitle">
+              Your current business performance across key growth areas.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="area-list">
+
+          <div class="area">
+
+            <div class="area-top">
+
+              <span class="area-name">
+                Positioning & Offer
+              </span>
+
+              <span class="area-score">
+                68%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:68%"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div class="area">
+
+            <div class="area-top">
+
+              <span class="area-name">
+                Social Media Visibility
+              </span>
+
+              <span class="area-score">
+                51%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:51%"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div class="area">
+
+            <div class="area-top">
+
+              <span class="area-name">
+                Website & Digital Presence
+              </span>
+
+              <span class="area-score">
+                64%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:64%"
+              ></div>
+
+            </div>
+
+          </div>
+
+
+          <div class="area">
+
+            <div class="area-top">
+
+              <span class="area-name">
+                Lead Generation
+              </span>
+
+              <span class="area-score">
+                43%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:43%"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div class="area">
+
+            <div class="area-top">
+
+              <span class="area-name">
+                Customer Journey
+              </span>
+
+              <span class="area-score">
+                47%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                style="width:47%"
+              ></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script>
+
+  function toggleSidebar() {
+
+    document
+      .getElementById("sidebar")
+      .classList.toggle("open");
+
+  }
+
+
+  function toggleTask(task) {
+
+    task.classList.toggle("completed");
+
+    const check =
+      task.querySelector(".task-check");
+
+    if (task.classList.contains("completed")) {
+
+      check.textContent = "✓";
+
+    } else {
+
+      check.textContent = "";
+
+    }
+
+  }
+
+
+  function handleAIKey(event) {
+
+    if (event.key === "Enter") {
+
+      askAI();
+
+    }
+
+  }
+
+
+  function askAI() {
+
+    const input =
+      document.getElementById("aiQuestion");
+
+    const question =
+      input.value.trim();
+
+    if (!question) {
+
+      input.focus();
+
+      return;
+
+    }
+
+    /*
+      TEMPORARY AI DEMO
+
+      This will later connect to:
+
+      ZionFlow frontend
+            ↓
+      Secure ZionFlow backend
+            ↓
+      AI API
+
+      NEVER place a real AI API key in this file.
+    */
+
+    alert(
+      "ZionFlow AI received your question:\n\n" +
+      question +
+      "\n\nThe secure AI connection will be connected next."
+    );
+
+    input.value = "";
+
+  }
+
+</script>
+
+</body>
+</html>

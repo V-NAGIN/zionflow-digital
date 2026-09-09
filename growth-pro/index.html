@@ -857,10 +857,10 @@
           My Growth Plan
         </button>
 
-        <button class="nav-item">
-          <span class="nav-icon">✦</span>
-          AI Growth Assistant
-        </button>
+       <button class="nav-item" onclick="document.getElementById('aiAssistant').scrollIntoView({ behavior: 'smooth' });">
+  <span class="nav-icon">✦</span>
+  AI Growth Assistant
+</button>
 
       </nav>
 
@@ -1579,45 +1579,87 @@
   }
 
 
-  function askAI() {
+ async function askAI() {
 
-    const input =
-      document.getElementById("aiQuestion");
+  const input = document.getElementById("aiQuestion");
+  const question = input.value.trim();
 
-    const question =
-      input.value.trim();
+  if (!question) {
+    input.focus();
+    return;
+  }
 
-    if (!question) {
+  const button = document.querySelector(
+    'button[onclick="askAI()"]'
+  );
 
-      input.focus();
+  const originalButtonText = button
+    ? button.textContent
+    : "Ask ZionFlow";
 
-      return;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Thinking...";
+  }
 
+  try {
+
+    const businessProfile =
+      JSON.parse(
+        localStorage.getItem("zionflow_business_profile") || "{}"
+      );
+
+    const response = await fetch(
+      https://shiny-happiness-gjjpqpr9ppvhv7r4-3000.app.github.dev/,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          message: question,
+          businessProfile: businessProfile,
+          currentPlan: "Personalized ZionFlow Growth Pro plan",
+          currentTask: "Use the AI Growth Assistant to determine the next best action."
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error || "AI request failed."
+      );
     }
 
-    /*
-      TEMPORARY AI DEMO
-
-      This will later connect to:
-
-      ZionFlow frontend
-            ↓
-      Secure ZionFlow backend
-            ↓
-      AI API
-
-      NEVER place a real AI API key in this file.
-    */
-
     alert(
-      "ZionFlow AI received your question:\n\n" +
-      question +
-      "\n\nThe secure AI connection will be connected next."
+      "ZionFlow AI:\n\n" +
+      data.answer
     );
 
     input.value = "";
 
+  } catch (error) {
+
+    console.error("ZionFlow AI error:", error);
+
+    alert(
+      "ZionFlow AI could not connect right now.\n\n" +
+      "Please try again."
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalButtonText;
+    }
+
   }
+}
 
 </script>
 

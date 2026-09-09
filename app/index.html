@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B1F3A">
+  <title>ZionFlow AI Growth Assistant</title>
+
+  <style>
+    :root {
+      --navy: #0B1F3A;
+      --navy-2: #102B4D;
+      --gold: #C9A227;
+      --gold-2: #E4C45A;
+      --bg: #F5F7FA;
+      --white: #FFFFFF;
+      --text: #142238;
+      --muted: #6D7888;
+      --border: #E4E8EF;
+      --success: #247A52;
+      --shadow: 0 12px 35px rgba(11, 31, 58, 0.08);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 250px;
+      background: var(--navy);
+      color: white;
+      padding: 28px 18px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .brand {
+      padding: 4px 12px 30px;
+    }
+
+    .brand-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      color: rgba(255,255,255,.62);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 7px;
+    }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.72);
+      padding: 13px 14px;
+      border-radius: 14px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      transition: .2s ease;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: rgba(255,255,255,.10);
+      color: white;
+    }
+
+    .nav button.active {
+      box-shadow: inset 3px 0 0 var(--gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 14px;
+      background: rgba(255,255,255,.06);
+      border-radius: 18px;
+    }
+
+    .pro-badge {
+      display: inline-flex;
+      background: var(--gold);
+      color: var(--navy);
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+
+    .sidebar-bottom p {
+      color: rgba(255,255,255,.68);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* MAIN */
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 78px;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 38px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .notification {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--navy);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 38px;
+    }
+
+    /* HERO */
+
+    .hero {
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      border-radius: var(--radius);
+      padding: 34px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: center;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 650px;
+      color: rgba(255,255,255,.72);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .hero-button {
+      border: 0;
+      background: var(--gold);
+      color: var(--navy);
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hero-button:hover {
+      background: var(--gold-2);
+    }
+
+    /* GRID */
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .card-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .score-layout {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .score-circle {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, white 58%, transparent 59%),
+        conic-gradient(var(--gold) 0 72%, #E9EDF2 72% 100%);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .score-number {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--navy);
+    }
+
+    .score-number span {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .score-info h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .score-info p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      background: #F2F6F4;
+      color: var(--success);
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: 13px;
+    }
+
+    /* FOCUS */
+
+    .focus-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .focus-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .focus-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: #F7F2DE;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .focus-item strong {
+      font-size: 13px;
+      display: block;
+    }
+
+    .focus-item span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* STATS */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--navy);
+    }
+
+    .stat-change {
+      color: var(--success);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 5px;
+    }
+
+    /* TASKS */
+
+    .tasks {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 13px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task:last-child {
+      border-bottom: 0;
+    }
+
+    .task-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #C9D0D9;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .task strong {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .task span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .task-tag {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--navy);
+      background: #EEF2F7;
+      border-radius: 999px;
+      padding: 6px 9px;
+    }
+
+    /* AI */
+
+    .ai-card {
+      background: linear-gradient(135deg, #FFFDF6, #FFFFFF);
+    }
+
+    .ai-message {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .ai-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--navy);
+      color: var(--gold);
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .ai-message p {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .ai-message strong {
+      color: var(--text);
+    }
+
+    /* MOBILE */
+
+    .mobile-menu {
+      display: none;
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 215px;
+      }
+
+      .main {
+        margin-left: 215px;
+        width: calc(100% - 215px);
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .topbar {
+        padding: 0 18px;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .hero {
+        padding: 25px;
+        display: block;
+      }
+
+      .hero-button {
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .score-layout {
+        display: block;
+        text-align: center;
+      }
+
+      .score-circle {
+        margin: 0 auto 22px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .stat {
+        padding: 17px;
+      }
+
+      .stat-value {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-name">ZionFlow</div>
+      <div class="brand-subtitle">AI Growth Assistant</div>
+    </div>
+
+    <nav class="nav">
+      <button class="active">⌂ &nbsp; Dashboard</button>
+      <button>◎ &nbsp; Growth Score</button>
+      <button>✓ &nbsp; My Growth Plan</button>
+      <button>✦ &nbsp; AI Assistant</button>
+      <button>✎ &nbsp; Content Studio</button>
+      <button>↗ &nbsp; Marketing</button>
+      <button>▣ &nbsp; Business Tools</button>
+      <button>◷ &nbsp; Progress</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="pro-badge">GROWTH PRO</div>
+      <p>Your AI-powered business growth workspace.</p>
+    </div>
+
+  </aside>
+
+  <main class="main">
+
+    <header class="topbar">
+      <div class="topbar-title">Business Growth Dashboard</div>
+
+      <div class="topbar-right">
+        <button class="notification">♧</button>
+        <div class="avatar">VG</div>
+      </div>
+    </header>
+
+    <section class="content">
+
+      <div class="hero">
+        <div>
+          <h1>Build. Grow. Scale.</h1>
+          <p>
+            Your ZionFlow Growth Assistant turns your business situation
+            into practical strategies, actions and tools to help you move forward.
+          </p>
+        </div>
+
+        <button class="hero-button" onclick="startPlan()">
+          View My Growth Plan
+        </button>
+      </div>
+
+      <div class="grid">
+
+        <div class="card">
+
+          <div class="card-header">
+            <div>
+              <div class="card-title">Your Growth Score</div>
+              <div class="card-subtitle">
+                Based on your current business assessment
+              </div>
+            </div>
+          </div>
+
+          <div class="score-layout">
+
+            <div class="score-circle">
+              <div class="score-number">
+                58<span>/80</span>
+              </div>
+            </div>
+
+            <div class="score-info">
+              <h3>Growing</h3>
+              <p>
+                Your business has a solid foundation, but there are several
+                opportunities that could improve your visibility, lead generation
+                and customer journey.
+              </p>
+
+              <div class="pill">↑ Growth opportunity identified</div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="card">
+
+          <div class="card-header">
+            <div>
+              <div class="card-title">Current Focus</div>
+              <div class="card-subtitle">Your highest-priority areas</div>
+            </div>
+          </div>
+
+          <div class="focus-list">
+
+            <div class="focus-item">
+              <div class="focus-icon">📣</div>
+              <div>
+                <strong>Social Visibility</strong>
+                <span>Build consistent awareness</span>
+              </div>
+            </div>
+
+            <div class="focus-item">
+              <div class="focus-icon">🎯</div>
+              <div>
+                <strong>Lead Generation</strong>
+                <span>Create more opportunities</span>
+              </div>
+            </div>
+
+            <div class="focus-item">
+              <div class="focus-icon">💬</div>
+              <div>
+                <strong>Customer Journey</strong>
+                <span>Improve conversion</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-label">30-Day Tasks</div>
+          <div class="stat-value">18</div>
+          <div class="stat-change">6 completed</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Goals</div>
+          <div class="stat-value">3</div>
+          <div class="stat-change">On track</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Growth Areas</div>
+          <div class="stat-value">7</div>
+          <div class="stat-change">Being analysed</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Plan Progress</div>
+          <div class="stat-value">33%</div>
+          <div class="stat-change">+8% this week</div>
+        </div>
+
+      </div>
+
+      <div class="grid">
+
+        <div class="card">
+
+          <div class="card-header">
+            <div>
+              <div class="card-title">Your Next Actions</div>
+              <div class="card-subtitle">
+                The actions ZionFlow recommends doing next
+              </div>
+            </div>
+          </div>
+
+          <div class="tasks">
+
+            <div class="task">
+              <div class="task-check"></div>
+              <div>
+                <strong>Create your weekly content schedule</strong>
+                <span>Plan 3 useful pieces of content for your audience.</span>
+              </div>
+              <div class="task-tag">CONTENT</div>
+            </div>
+
+            <div class="task">
+              <div class="task-check"></div>
+              <div>
+                <strong>Improve your WhatsApp customer journey</strong>
+                <span>Make it easier for prospects to enquire and buy.</span>
+              </div>
+              <div class="task-tag">LEADS</div>
+            </div>
+
+            <div class="task">
+              <div class="task-check"></div>
+              <div>
+                <strong>Define your strongest customer offer</strong>
+                <span>Clarify what you sell and why customers should choose you.</span>
+              </div>
+              <div class="task-tag">OFFER</div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="card ai-card">
+
+          <div class="card-header">
+            <div>
+              <div class="card-title">AI Growth Coach</div>
+              <div class="card-subtitle">Your next strategic recommendation</div>
+            </div>
+          </div>
+
+          <div class="ai-message">
+            <div class="ai-icon">AI</div>
+
+            <p>
+              <strong>Your biggest opportunity right now is consistency.</strong>
+              Before adding more platforms, build a repeatable weekly system
+              for content, lead follow-up and customer communication.
+              <br><br>
+              Once that system is working, ZionFlow can help you scale it.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+  function startPlan() {
+    alert("Your personalized Growth Plan will open here.");
+  }
+</script>
+
+</body>
+</html>

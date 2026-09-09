@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ZionFlow — Business Onboarding</title>
+
+  <style>
+    :root {
+      --navy: #0B1F3A;
+      --navy-2: #102B4D;
+      --gold: #C9A227;
+      --gold-2: #E4C45A;
+      --bg: #F5F7FA;
+      --white: #FFFFFF;
+      --text: #142238;
+      --muted: #6D7888;
+      --border: #DDE3EA;
+      --success: #2E7D5B;
+      --danger: #B54747;
+      --shadow: 0 18px 50px rgba(11, 31, 58, 0.10);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .topbar {
+      height: 72px;
+      background: var(--navy);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand span {
+      color: var(--gold-2);
+    }
+
+    .pro-badge {
+      background: rgba(201, 162, 39, 0.16);
+      color: var(--gold-2);
+      border: 1px solid rgba(228, 196, 90, 0.35);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .page {
+      width: min(900px, calc(100% - 32px));
+      margin: 44px auto 70px;
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .intro .eyebrow {
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+
+    .intro h1 {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 14px;
+      color: var(--navy);
+    }
+
+    .intro p {
+      max-width: 650px;
+      margin: 0 auto;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .progress-wrap {
+      margin: 0 auto 28px;
+      max-width: 760px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .progress {
+      height: 8px;
+      background: #E3E8EE;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      transition: width 0.3s ease;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(11, 31, 58, 0.05);
+      padding: clamp(24px, 5vw, 42px);
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step-number {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .step h2 {
+      color: var(--navy);
+      font-size: 28px;
+      letter-spacing: -0.7px;
+      margin-bottom: 8px;
+    }
+
+    .step-description {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 26px;
+    }
+
+    .field {
+      margin-bottom: 21px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 750;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .required {
+      color: var(--gold);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #FBFCFD;
+      color: var(--text);
+      border-radius: 13px;
+      padding: 14px 15px;
+      outline: none;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input,
+    select {
+      min-height: 50px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.12);
+      background: white;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .choice {
+      position: relative;
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice label {
+      margin: 0;
+      border: 1px solid var(--border);
+      background: #FBFCFD;
+      border-radius: 14px;
+      padding: 15px;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .choice label:hover {
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .choice input:checked + label {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.09);
+      box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.12);
+    }
+
+    .choice-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(11, 31, 58, 0.07);
+      display: grid;
+      place-items: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 7px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      border: 0;
+      min-height: 52px;
+      padding: 0 22px;
+      border-radius: 13px;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-2);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #EEF2F6;
+      color: var(--navy);
+    }
+
+    .btn-secondary:hover {
+      background: #E4E9EF;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .complete {
+      display: none;
+      text-align: center;
+    }
+
+    .complete.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .complete-icon {
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: rgba(46, 125, 91, 0.1);
+      color: var(--success);
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .complete h2 {
+      color: var(--navy);
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .complete p {
+      max-width: 580px;
+      margin: 0 auto 25px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 7px;
+      display: none;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        padding: 0 18px;
+      }
+
+      .page {
+        width: min(100% - 20px, 900px);
+        margin-top: 28px;
+      }
+
+      .two-col,
+      .choice-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 22px 18px;
+        border-radius: 20px;
+      }
+
+      .buttons {
+        flex-direction: column-reverse;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">Zion<span>Flow</span></div>
+    <div class="pro-badge">GROWTH PRO</div>
+  </header>
+
+  <main class="page">
+
+    <section class="intro">
+      <div class="eyebrow">Your Growth Profile</div>
+
+      <h1>Let's build your growth strategy.</h1>
+
+      <p>
+        Tell ZionFlow about your business. We'll use this information
+        to create a more relevant growth strategy, content ideas,
+        priorities and actions for your business.
+      </p>
+    </section>
+
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="stepLabel">Step 1 of 6</span>
+        <span id="progressPercent">17%</span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <section class="card">
+
+      <!-- STEP 1 -->
+      <div class="step active" data-step="1">
+
+        <div class="step-number">Step 1</div>
+
+        <h2>Tell us about your business</h2>
+
+        <p class="step-description">
+          Start with the basics so ZionFlow understands what you do.
+        </p>
+
+        <div class="field">
+          <label for="businessName">
+            Business name <span class="required">*</span>
+          </label>
+
+          <input
+            id="businessName"
+            type="text"
+            placeholder="e.g. ABC Plumbing"
+            required
+          >
+
+          <div class="error" id="businessNameError">
+            Please enter your business name.
+          </div>
+        </div>
+
+        <div class="two-col">
+
+          <div class="field">
+            <label for="industry">
+              Industry <span class="required">*</span>
+            </label>
+
+            <input
+              id="industry"
+              type="text"
+              placeholder="e.g. Plumbing, Real Estate, Clothing"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="location">
+              Main market / location
+            </label>
+
+            <input
+              id="location"
+              type="text"
+              placeholder="e.g. Johannesburg, South Africa"
+            >
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- STEP 2 -->
+      <div class="step" data-step="2">
+
+        <div class="step-number">Step 2</div>
+
+        <h2>What do you sell?</h2>
+
+        <p class="step-description">
+          Understanding your offer helps the AI recommend better
+          marketing and growth opportunities.
+        </p>
+
+        <div class="field">
+          <label for="products">
+            Products or services <span class="required">*</span>
+          </label>
+
+          <textarea
+            id="products"
+            placeholder="Describe the main products or services your business sells..."
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="pricing">
+            Typical price range
+          </label>
+
+          <input
+            id="pricing"
+            type="text"
+            placeholder="e.g. R500 – R5,000"
+          >
+        </div>
+
+        <div class="field">
+          <label for="businessStage">
+            What stage is your business at?
+          </label>
+
+          <div class="choice-grid">
+
+            <div class="choice">
+              <input type="radio" name="businessStage" id="stage-new" value="Just starting">
+              <label for="stage-new">
+                <span class="choice-icon">🌱</span>
+                Just starting
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="radio" name="businessStage" id="stage-early" value="Early stage">
+              <label for="stage-early">
+                <span class="choice-icon">🚀</span>
+                Early stage
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="radio" name="businessStage" id="stage-growing" value="Growing">
+              <label for="stage-growing">
+                <span class="choice-icon">📈</span>
+                Growing
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="radio" name="businessStage" id="stage-established" value="Established">
+              <label for="stage-established">
+                <span class="choice-icon">🏢</span>
+                Established
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 3 -->
+      <div class="step" data-step="3">
+
+        <div class="step-number">Step 3</div>
+
+        <h2>Who are you trying to reach?</h2>
+
+        <p class="step-description">
+          The more clearly we understand your customer, the better
+          ZionFlow can help with positioning, content and lead generation.
+        </p>
+
+        <div class="field">
+          <label for="targetCustomer">
+            Describe your ideal customer
+          </label>
+
+          <textarea
+            id="targetCustomer"
+            placeholder="e.g. Homeowners in Johannesburg looking for reliable plumbing services..."
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="customerProblem">
+            What problem does your business solve?
+          </label>
+
+          <textarea
+            id="customerProblem"
+            placeholder="What is your customer struggling with that your business helps solve?"
+          ></textarea>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 4 -->
+      <div class="step" data-step="4">
+
+        <div class="step-number">Step 4</div>
+
+        <h2>Where are you currently marketing?</h2>
+
+        <p class="step-description">
+          Select the channels your business currently uses.
+        </p>
+
+        <div class="field">
+
+          <label>Marketing channels</label>
+
+          <div class="choice-grid">
+
+            <div class="choice">
+              <input type="checkbox" id="channel-instagram" value="Instagram">
+              <label for="channel-instagram">
+                <span class="choice-icon">📸</span>
+                Instagram
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-facebook" value="Facebook">
+              <label for="channel-facebook">
+                <span class="choice-icon">📘</span>
+                Facebook
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-tiktok" value="TikTok">
+              <label for="channel-tiktok">
+                <span class="choice-icon">🎵</span>
+                TikTok
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-linkedin" value="LinkedIn">
+              <label for="channel-linkedin">
+                <span class="choice-icon">💼</span>
+                LinkedIn
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-whatsapp" value="WhatsApp Business">
+              <label for="channel-whatsapp">
+                <span class="choice-icon">💬</span>
+                WhatsApp Business
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-google" value="Google Business Profile">
+              <label for="channel-google">
+                <span class="choice-icon">🔎</span>
+                Google
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-website" value="Website">
+              <label for="channel-website">
+                <span class="choice-icon">🌐</span>
+                Website
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="channel-other" value="Other">
+              <label for="channel-other">
+                <span class="choice-icon">➕</span>
+                Other
+              </label>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="field">
+          <label for="website">
+            Website URL
+          </label>
+
+          <input
+            id="website"
+            type="url"
+            placeholder="https://yourwebsite.com"
+          >
+        </div>
+
+      </div>
+
+
+      <!-- STEP 5 -->
+      <div class="step" data-step="5">
+
+        <div class="step-number">Step 5</div>
+
+        <h2>What are you trying to achieve?</h2>
+
+        <p class="step-description">
+          Your goals will determine what ZionFlow prioritises in your
+          growth plan.
+        </p>
+
+        <div class="field">
+
+          <label>Primary goals</label>
+
+          <div class="choice-grid">
+
+            <div class="choice">
+              <input type="checkbox" id="goal-leads" value="Generate more leads">
+              <label for="goal-leads">
+                <span class="choice-icon">🎯</span>
+                Generate more leads
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="goal-sales" value="Increase sales">
+              <label for="goal-sales">
+                <span class="choice-icon">💰</span>
+                Increase sales
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="goal-social" value="Grow social media">
+              <label for="goal-social">
+                <span class="choice-icon">📱</span>
+                Grow social media
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="goal-website" value="Improve website">
+              <label for="goal-website">
+                <span class="choice-icon">🌐</span>
+                Improve website
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="goal-brand" value="Build brand awareness">
+              <label for="goal-brand">
+                <span class="choice-icon">⭐</span>
+                Build brand awareness
+              </label>
+            </div>
+
+            <div class="choice">
+              <input type="checkbox" id="goal-customers" value="Get more customers">
+              <label for="goal-customers">
+                <span class="choice-icon">👥</span>
+                Get more customers
+              </label>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="field">
+
+          <label for="biggestProblem">
+            What is your biggest growth problem right now?
+          </label>
+
+          <textarea
+            id="biggestProblem"
+            placeholder="Be honest. For example: We get enquiries but don't convert enough of them."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- STEP 6 -->
+      <div class="step" data-step="6">
+
+        <div class="step-number">Step 6</div>
+
+        <h2>Let's understand your resources</h2>
+
+        <p class="step-description">
+          This helps ZionFlow recommend strategies that are realistic
+          for your business.
+        </p>
+
+        <div class="field">
+
+          <label for="monthlyBudget">
+            Approximate monthly marketing budget
+          </label>
+
+          <select id="monthlyBudget">
+
+            <option value="">Select one</option>
+
+            <option value="R0">
+              R0
+            </option>
+
+            <option value="R1 - R1,000">
+              R1 – R1,000
+            </option>
+
+            <option value="R1,000 - R5,000">
+              R1,000 – R5,000
+            </option>
+
+            <option value="R5,000 - R10,000">
+              R5,000 – R10,000
+            </option>
+
+            <option value="R10,000+">
+              R10,000+
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+
+          <label for="availableTime">
+            How much time can you personally spend on growth each week?
+          </label>
+
+          <select id="availableTime">
+
+            <option value="">Select one</option>
+
+            <option value="Less than 2 hours">
+              Less than 2 hours
+            </option>
+
+            <option value="2 - 5 hours">
+              2 – 5 hours
+            </option>
+
+            <option value="5 - 10 hours">
+              5 – 10 hours
+            </option>
+
+            <option value="10+ hours">
+              10+ hours
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+
+          <label for="additionalInfo">
+            Anything else ZionFlow should know?
+          </label>
+
+          <textarea
+            id="additionalInfo"
+            placeholder="Anything about your business, challenges, competitors or goals that would help us understand you better..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- COMPLETE -->
+      <div class="complete" id="complete">
+
+        <div class="complete-icon">✓</div>
+
+        <h2>Your Growth Profile is ready.</h2>
+
+        <p>
+          ZionFlow has captured your business information.
+          The next step is to use this profile to generate your
+          personalised Growth Pro experience.
+        </p>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          onclick="continueToDashboard()"
+        >
+          Continue to Growth Pro
+        </button>
+
+      </div>
+
+
+      <!-- NAVIGATION -->
+      <div class="buttons" id="navigation">
+
+        <button
+          class="btn btn-secondary"
+          type="button"
+          id="backBtn"
+          onclick="previousStep()"
+        >
+          Back
+        </button>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          id="nextBtn"
+          onclick="nextStep()"
+        >
+          Continue
+        </button>
+
+      </div>
+
+    </section>
+
+    <div class="footer-note">
+      Your information is used to personalise your ZionFlow Growth Pro experience.
+    </div>
+
+  </main>
+
+
+  <script>
+
+    let currentStep = 1;
+
+    const totalSteps = 6;
+
+    const steps = document.querySelectorAll(".step");
+
+    const progressBar = document.getElementById("progressBar");
+
+    const stepLabel = document.getElementById("stepLabel");
+
+    const progressPercent =
+      document.getElementById("progressPercent");
+
+    const backBtn =
+      document.getElementById("backBtn");
+
+    const nextBtn =
+      document.getElementById("nextBtn");
+
+
+    function updateProgress() {
+
+      const percent =
+        Math.round((currentStep / totalSteps) * 100);
+
+      progressBar.style.width = percent + "%";
+
+      stepLabel.textContent =
+        "Step " + currentStep + " of " + totalSteps;
+
+      progressPercent.textContent =
+        percent + "%";
+
+      backBtn.disabled =
+        currentStep === 1;
+
+      nextBtn.textContent =
+        currentStep === totalSteps
+          ? "Create My Growth Profile"
+          : "Continue";
+    }
+
+
+    function showStep(stepNumber) {
+
+      steps.forEach(step => {
+
+        step.classList.remove("active");
+
+      });
+
+      const target =
+        document.querySelector(
+          '.step[data-step="' + stepNumber + '"]'
+        );
+
+      if (target) {
+
+        target.classList.add("active");
+
+      }
+
+      updateProgress();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+
+    function validateStep() {
+
+      if (currentStep === 1) {
+
+        const businessName =
+          document.getElementById("businessName").value.trim();
+
+        const industry =
+          document.getElementById("industry").value.trim();
+
+        const error =
+          document.getElementById("businessNameError");
+
+        if (!businessName) {
+
+          error.style.display = "block";
+
+          document.getElementById("businessName").focus();
+
+          return false;
+
+        }
+
+        error.style.display = "none";
+
+        if (!industry) {
+
+          document.getElementById("industry").focus();
+
+          return false;
+
+        }
+
+      }
+
+
+      if (currentStep === 2) {
+
+        const products =
+          document.getElementById("products").value.trim();
+
+        if (!products) {
+
+          document.getElementById("products").focus();
+
+          return false;
+
+        }
+
+      }
+
+      return true;
+
+    }
+
+
+    function nextStep() {
+
+      if (!validateStep()) {
+
+        return;
+
+      }
+
+      if (currentStep < totalSteps) {
+
+        currentStep++;
+
+        showStep(currentStep);
+
+      } else {
+
+        saveProfile();
+
+      }
+
+    }
+
+
+    function previousStep() {
+
+      if (currentStep > 1) {
+
+        currentStep--;
+
+        showStep(currentStep);
+
+      }
+
+    }
+
+
+    function getCheckedValues(selector) {
+
+      return Array.from(
+        document.querySelectorAll(selector + ":checked")
+      ).map(input => input.value);
+
+    }
+
+
+    function saveProfile() {
+
+      const profile = {
+
+        businessName:
+          document.getElementById("businessName").value.trim(),
+
+        industry:
+          document.getElementById("industry").value.trim(),
+
+        location:
+          document.getElementById("location").value.trim(),
+
+        products:
+          document.getElementById("products").value.trim(),
+
+        pricing:
+          document.getElementById("pricing").value.trim(),
+
+        businessStage:
+          document.querySelector(
+            'input[name="businessStage"]:checked'
+          )?.value || "",
+
+        targetCustomer:
+          document.getElementById("targetCustomer").value.trim(),
+
+        customerProblem:
+          document.getElementById("customerProblem").value.trim(),
+
+        marketingChannels:
+          getCheckedValues(
+            '.choice input[type="checkbox"][id^="channel-"]'
+          ),
+
+        website:
+          document.getElementById("website").value.trim(),
+
+        goals:
+          getCheckedValues(
+            '.choice input[type="checkbox"][id^="goal-"]'
+          ),
+
+        biggestProblem:
+          document.getElementById("biggestProblem").value.trim(),
+
+        monthlyBudget:
+          document.getElementById("monthlyBudget").value,
+
+        availableTime:
+          document.getElementById("availableTime").value,
+
+        additionalInfo:
+          document.getElementById("additionalInfo").value.trim(),
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      /*
+        TEMPORARY PROTOTYPE STORAGE
+
+        This lets us test the complete onboarding flow.
+
+        IMPORTANT:
+        This is NOT our final customer database.
+
+        Later this will be replaced by:
+        Shopify purchase verification
+        +
+        secure authentication
+        +
+        ZionFlow backend/database.
+      */
+
+      localStorage.setItem(
+        "zionflow_business_profile",
+        JSON.stringify(profile)
+      );
+
+
+      document
+        .getElementById("navigation")
+        .style.display = "none";
+
+
+      document
+        .getElementById("complete")
+        .classList.add("active");
+
+
+      document
+        .querySelectorAll(".step")
+        .forEach(step => {
+          step.classList.remove("active");
+        });
+
+
+      stepLabel.textContent =
+        "Profile complete";
+
+      progressPercent.textContent =
+        "100%";
+
+      progressBar.style.width =
+        "100%";
+
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }
+
+
+    function continueToDashboard() {
+
+      /*
+        TEMPORARY:
+
+        We will later add secure access verification
+        before allowing the customer into Growth Pro.
+
+        For now we are connecting the onboarding
+        experience to the dashboard so we can test
+        the complete product flow.
+      */
+
+      window.location.href =
+        "index.html";
+
+    }
+
+
+    updateProgress();
+
+  </script>
+
+</body>
+</html>

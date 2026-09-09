@@ -3278,36 +3278,23 @@
 
     }
 
+function selectPlan(plan) {
 
-    function selectPlan(plan) {
+  selectedPlan = plan;
 
-      selectedPlan =
-        plan;
+  if (plan === "once") {
 
+    window.location.href =
+      "https://zionflow.co.za/products/zionflow-growth-plan";
 
-      if (plan === "once") {
+  } else {
 
-        checkoutPlan.textContent =
-          "Growth Plan";
+    window.location.href =
+      "https://zionflow.co.za/products/zionflow-growth-pro";
 
-        checkoutPrice.textContent =
-          "R149 once-off";
+  }
 
-      } else {
-
-        checkoutPlan.textContent =
-          "Growth Pro";
-
-        checkoutPrice.textContent =
-          "R299 / month";
-
-      }
-
-
-      goToScreen(checkoutScreen);
-
-    }
-
+}
 
     /* =========================================================
        PROTOTYPE PAYMENT

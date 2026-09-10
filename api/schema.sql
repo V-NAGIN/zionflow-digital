@@ -89,3 +89,9 @@ end;
 $$;
 revoke all on function public.consume_ai_request(uuid) from public,anon,authenticated;
 grant execute on function public.consume_ai_request(uuid) to service_role;
+
+-- Explicit privileges are required when automatic Data API exposure is disabled.
+-- Browser roles remain denied by both grants and RLS (no permissive policies).
+grant usage on schema public to service_role;
+grant select,insert,update on public.workspaces,public.billing_orders,public.billing_revocations,public.ai_request_limits to service_role;
+notify pgrst, 'reload schema';

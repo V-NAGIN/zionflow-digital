@@ -167,6 +167,13 @@ console.log("ZionFlow: sending request to Gemini...");
 const path = require("node:path");
 for (const dir of ["assets", "growth-pro", "app", "services"]) app.use("/" + dir, express.static(path.join(__dirname,"..",dir), {dotfiles:"deny"}));
 app.get("/",(req,res)=>res.sendFile(path.join(__dirname,"..","index.html")));
+// Never expose parser errors or development stack traces to API clients.
+app.use((error,req,res,next)=>{
+  if(res.headersSent)return next(error);
+  const status=error.type==='entity.too.large'?413:error.type==='entity.parse.failed'?400:503;
+  res.status(status).json({success:false,error:status===413?'The request is too large.':status===400?'Please send a valid request.':'The service is temporarily unavailable.'});
+});
 app.listen(PORT, () => {
   console.log(`ZionFlow API running on port ${PORT}`);
+  if(process.env.RENDER==='true')require('./verify-services').verify().then(result=>console.log('ZionFlow service check',JSON.stringify(result))).catch(()=>{});
 });

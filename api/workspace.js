@@ -43,6 +43,11 @@ async function entitlement(req,res,next) {
 }
 function mount(app) {
   app.get('/api/config',(req,res)=>res.json({configured:configured(),authUrl:process.env.SUPABASE_URL || '',authKey:process.env.SUPABASE_ANON_KEY || ''}));
+  // Account/billing details remain available after paid access expires.
+  app.get('/api/account',identity,async(req,res)=>{
+    try {const rows=await db('billing_orders?customer_email=eq.'+encodeURIComponent(req.account.email.toLowerCase())+'&select=paid_until,revoked&order=paid_until.desc&limit=1');res.json({success:true,email:req.account.email,paidUntil:rows[0]?.paid_until||null,revoked:Boolean(rows[0]?.revoked)});}
+    catch {res.status(503).json({success:false,error:'Your account details could not be loaded.'});}
+  });
   app.get('/api/workspace',identity,entitlement,async(req,res)=>{
     try { const rows=await db(`workspaces?user_id=eq.${encodeURIComponent(req.account.id)}&select=profile,assessment,tasks`); res.json({success:true,email:req.account.email,membership:req.membership,...(rows[0] || {profile:{},assessment:null,tasks:[]})}); }
     catch {res.status(503).json({success:false,error:'Your workspace could not be loaded.'});}

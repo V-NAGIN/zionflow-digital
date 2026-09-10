@@ -7,7 +7,7 @@ const alice='00000000-0000-4000-8000-000000000001';
 const bob='00000000-0000-4000-8000-000000000002';
 async function setup(){
  const db=new PGlite();
- await db.exec(`create schema auth; create role anon; create role authenticated; create role service_role bypassrls; alter default privileges in schema public grant all on tables to service_role; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz); insert into auth.users values('${alice}','alice@example.test',now()),('${bob}','bob@example.test',now());`);
+ await db.exec(`create schema auth; create role anon; create role authenticated; create role service_role bypassrls; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz); insert into auth.users values('${alice}','alice@example.test',now()),('${bob}','bob@example.test',now());`);
  await db.exec(fs.readFileSync(path.join(__dirname,'../schema.sql'),'utf8'));return db;
 }
 async function paid(db,id,email='alice@example.test',days=15){await db.query("select record_paid_order($1,$2,now()-interval '1 day',now()+$3*interval '1 day')",[id,email,days]);}

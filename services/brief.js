@@ -14,7 +14,7 @@
  form.onsubmit=event=>{
   event.preventDefault();const d=values();if(!d)return;
   const message=`Hi ZionFlow 👋\n\nI’d like help with a project.\n\nBusiness: ${d.business}\nService: ${d.service}\nWhat I want to achieve: ${d.goal}${d.timeframe?'\nTimeframe: '+d.timeframe:''}\n\nI completed the project brief on the ZionFlow website and I’d like to discuss the next steps.`;
-  const link=document.createElement('a');link.href='https://api.whatsapp.com/send/?phone=27671140936&text='+encodeURIComponent(message);link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open your prepared WhatsApp message';
+  const link=document.createElement('a');link.href='https://api.whatsapp.com/send/?phone=27833110552&text='+encodeURIComponent(message);link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open your prepared WhatsApp message';
   status.replaceChildren(document.createTextNode('Review your message in WhatsApp, then press Send. If it did not open, '),link,document.createTextNode('.'));
   link.click();
  };

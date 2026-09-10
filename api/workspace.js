@@ -36,6 +36,9 @@ async function identity(req,res,next) {
 }
 async function entitlement(req,res,next) {
   try {
+    const roles=await db('account_roles?user_id=eq.'+encodeURIComponent(req.account.id)+'&select=role&limit=1');
+    const role=roles[0]?.role;
+    if(role==='owner'||role==='admin'){req.membership={plan:'pro',status:'active',access_type:'staff',role,paid_until:null};return next();}
     const rows = await db('rpc/current_membership',{method:'POST',body:JSON.stringify({account_id:req.account.id})});
     if (!active(rows[0])) return res.status(402).json({success:false,error:'An active Growth Pro subscription is required.',code:'SUBSCRIPTION_REQUIRED'});
     req.membership = rows[0]; next();

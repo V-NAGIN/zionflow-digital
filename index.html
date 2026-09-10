@@ -756,7 +756,7 @@
 
     .popular-badge {
       position: absolute;
-      top: 18px;
+      top: -12px;
       right: 18px;
       padding: 6px 9px;
       border-radius: 999px;
@@ -1536,7 +1536,8 @@
       }
     }
   </style>
-</head>
+<link rel="stylesheet" href="/assets/assessment-upgrade.css">
+<link rel="stylesheet" href="/assets/depth.css"><link rel="stylesheet" href="/assets/support.css"></head>
 
 <body>
 
@@ -1610,8 +1611,8 @@
         </div>
 
         <h1 class="welcome-title">
-          HOW STRONG IS<br>
-          YOUR BUSINESS ONLINE?
+          How strong is<br>
+          your business online?
         </h1>
 
         <p class="welcome-description">
@@ -1976,9 +1977,8 @@
         </div>
 
 
-        <div class="price-note">
-          Secure payment and automatic account access will
-          be connected before public launch.
+        <section class="agency-choice"><div><div class="pricing-eyebrow">A third way forward</div><h2>Prefer us to do the work?</h2><p>From websites and software to AI integration, social media and content. Bring your goals. Our team helps you deliver.</p></div><a class="btn btn-secondary" href="/services/">EXPLORE OUR SERVICES ↗</a></section><div class="price-note">
+          Choose your plan on Shopify. Prefer an expert team? Explore our services below.
         </div>
 
       </section>
@@ -1990,383 +1990,14 @@
          CHECKOUT
     ===================================================== -->
 
-    <main id="checkoutScreen" class="screen hidden">
 
-      <section class="card checkout-card">
-
-        <div class="checkout-header">
-
-          <div class="pricing-eyebrow">
-            ZionFlow Digital
-          </div>
-
-          <h2>
-            READY TO UNLOCK?
-          </h2>
-
-          <p>
-            You're one step away from accessing your
-            personalized ZionFlow Digital experience.
-          </p>
-
-        </div>
-
-
-        <div class="checkout-summary">
-
-          <strong id="checkoutPlan">
-            Growth Pro
-          </strong>
-
-          <span id="checkoutPrice">
-            R299 / month
-          </span>
-
-        </div>
-
-
-        <div class="demo-warning">
-
-          <strong>
-            Prototype checkout:
-          </strong>
-
-          this currently demonstrates the customer journey.
-          Yoco and Shopify payment processing will be
-          connected here before launch.
-
-        </div>
-
-
-        <div class="checkout-actions">
-
-          <button
-            type="button"
-            class="btn btn-gold full-width"
-            onclick="demoUnlock()"
-          >
-            CONTINUE TO PAYMENT →
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-secondary full-width"
-            onclick="showPricing()"
-          >
-            ← BACK TO PRICING
-          </button>
-
-        </div>
-
-      </section>
-
-    </main>
 
 
     <!-- =====================================================
          GROWTH PLAN
     ===================================================== -->
 
-    <main
-      id="growthPlanScreen"
-      class="screen hidden"
-    >
 
-      <section class="card plan-card">
-
-        <!-- PLAN HEADER -->
-
-        <div class="plan-header">
-
-          <div class="plan-eyebrow">
-            ZionFlow Digital
-          </div>
-
-          <h2>
-            YOUR GROWTH PLAN
-          </h2>
-
-          <p id="planIntro">
-            Your assessment has identified the areas where
-            your business can create the biggest digital
-            growth opportunities.
-          </p>
-
-          <div class="unlocked-badge">
-            ✓ Growth Plan Unlocked
-          </div>
-
-        </div>
-
-
-        <!-- SUMMARY -->
-
-        <div class="plan-summary">
-
-          <div class="summary-box">
-
-            <div class="summary-label">
-              Your score
-            </div>
-
-            <div
-              id="planScore"
-              class="summary-value"
-            >
-              0 / 80
-            </div>
-
-          </div>
-
-
-          <div class="summary-box">
-
-            <div class="summary-label">
-              Current stage
-            </div>
-
-            <div
-              id="planStage"
-              class="summary-value"
-            >
-              Developing
-            </div>
-
-          </div>
-
-
-          <div class="summary-box">
-
-            <div class="summary-label">
-              Focus areas
-            </div>
-
-            <div
-              id="planFocus"
-              class="summary-value"
-            >
-              3 priorities
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- PRIORITIES -->
-
-        <div class="section-heading">
-
-          <h3 class="section-title">
-            🎯 Your Top Priorities
-          </h3>
-
-          <span class="section-kicker">
-            Based on your assessment
-          </span>
-
-        </div>
-
-        <div
-          id="priorityGrid"
-          class="priority-grid"
-        ></div>
-
-
-        <!-- PERSONALIZED INSIGHT -->
-
-        <div class="insight-box">
-
-          <div class="insight-label">
-            ZionFlow Recommendation
-          </div>
-
-          <p id="personalInsight">
-            Your plan will focus on the areas that can
-            create the biggest improvement first.
-          </p>
-
-        </div>
-
-
-        <!-- TASKS -->
-
-        <div class="task-section">
-
-          <div class="task-header">
-
-            <div class="section-heading">
-
-              <h3 class="section-title">
-                ✅ Your Action Checklist
-              </h3>
-
-              <span class="section-kicker">
-                Complete these one at a time
-              </span>
-
-            </div>
-
-            <p>
-              Complete these tasks as you improve your
-              business. Your progress is saved automatically
-              on this device.
-            </p>
-
-          </div>
-
-
-          <div
-            id="taskList"
-            class="task-list"
-          ></div>
-
-
-          <div class="progress-summary">
-
-            <strong id="taskCount">
-              0 of 12 tasks complete
-            </strong>
-
-            <div class="task-progress">
-
-              <div
-                id="taskProgressBar"
-                class="task-progress-bar"
-              ></div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ROADMAP -->
-
-        <div class="section-heading">
-
-          <h3 class="section-title">
-            📅 Your 30 / 60 / 90-Day Roadmap
-          </h3>
-
-          <span class="section-kicker">
-            Your recommended progression
-          </span>
-
-        </div>
-
-
-        <div class="roadmap">
-
-          <div class="roadmap-item">
-
-            <div class="roadmap-time">
-              Days 1–30
-            </div>
-
-            <div class="roadmap-content">
-
-              <h3>
-                Build the foundation
-              </h3>
-
-              <p id="roadmap30">
-                Fix your highest-priority digital gaps
-                and create the systems your business needs.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div class="roadmap-item">
-
-            <div class="roadmap-time">
-              Days 31–60
-            </div>
-
-            <div class="roadmap-content">
-
-              <h3>
-                Create consistency
-              </h3>
-
-              <p id="roadmap60">
-                Turn your new systems into repeatable
-                marketing and customer processes.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div class="roadmap-item">
-
-            <div class="roadmap-time">
-              Days 61–90
-            </div>
-
-            <div class="roadmap-content">
-
-              <h3>
-                Optimise for growth
-              </h3>
-
-              <p id="roadmap90">
-                Improve conversion, follow-up and
-                customer experience.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- CTA -->
-
-        <div class="plan-cta">
-
-          <h3>
-            Ready to turn the plan into action?
-          </h3>
-
-          <p>
-            This is the foundation of the ZionFlow Digital
-            Growth Platform. Interactive tools, AI assistance,
-            progress tracking and business systems will
-            eventually live here.
-          </p>
-
-          <div class="plan-actions">
-
-            <button
-              type="button"
-              class="btn btn-gold"
-              onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-            >
-              BACK TO TOP
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-secondary"
-              onclick="restartAssessment()"
-            >
-              RETAKE ASSESSMENT
-            </button>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
 
   </div>
 
@@ -2754,7 +2385,7 @@
 
         loadingScreen.classList.add("hide");
 
-      }, 1500);
+      }, 100);
 
     });
 
@@ -2773,9 +2404,9 @@
 
       pricingScreen.classList.add("hidden");
 
-      checkoutScreen.classList.add("hidden");
+      checkoutScreen?.classList.add("hidden");
 
-      growthPlanScreen.classList.add("hidden");
+      growthPlanScreen?.classList.add("hidden");
 
     }
 
@@ -3060,6 +2691,7 @@
     ========================================================= */
 
     function showResults() {
+      try { localStorage.setItem("zionflow_assessment_draft", JSON.stringify({answers:selectedAnswers, savedAt:new Date().toISOString()})); } catch {}
 
       finalScore =
         calculateScore();
@@ -3300,436 +2932,7 @@ function selectPlan(plan) {
        PROTOTYPE PAYMENT
     ========================================================= */
 
-    function demoUnlock() {
-
-      localStorage.setItem(
-        "zionflow_demo_access",
-        "true"
-      );
-
-
-      localStorage.setItem(
-        "zionflow_selected_plan",
-        selectedPlan
-      );
-
-
-      showGrowthPlan();
-
-    }
-
-
-    /* =========================================================
-       GROWTH PLAN
-    ========================================================= */
-
-    function showGrowthPlan() {
-
-      goToScreen(growthPlanScreen);
-
-      buildGrowthPlan();
-
-    }
-
-
-    /* =========================================================
-       BUILD PERSONALIZED PLAN
-    ========================================================= */
-
-    function buildGrowthPlan() {
-
-      const topThree =
-        finalOpportunities.slice(0, 3);
-
-
-      planScore.textContent =
-        `${finalScore} / 80`;
-
-
-      planFocus.textContent =
-        `${topThree.length} priorities`;
-
-
-      const stage =
-        getStage(finalScore);
-
-
-      planStage.textContent =
-        stage;
-
-
-      /* -------------------------------------------------------
-         INTRO
-      ------------------------------------------------------- */
-
-      if (finalScore >= 65) {
-
-        planIntro.textContent =
-          "Your business already has a strong digital foundation. Your plan focuses on optimisation, consistency and turning your existing presence into stronger growth.";
-
-      } else if (finalScore >= 48) {
-
-        planIntro.textContent =
-          "You have a good digital foundation. Your plan focuses on closing the gaps that are preventing your online presence from working consistently.";
-
-      } else if (finalScore >= 30) {
-
-        planIntro.textContent =
-          "You have a starting point to build from. Your plan focuses on fixing the most important gaps first instead of trying to change everything at once.";
-
-      } else {
-
-        planIntro.textContent =
-          "Your biggest opportunity is building the essential digital foundations first. Your plan prioritises the systems that can create the strongest base for future growth.";
-
-      }
-
-
-      /* -------------------------------------------------------
-         PRIORITY CARDS
-      ------------------------------------------------------- */
-
-      priorityGrid.innerHTML = "";
-
-
-      topThree.forEach(
-        (item, index) => {
-
-          const area =
-            growthAreas[item.category];
-
-
-          if (!area) return;
-
-
-          const card =
-            document.createElement("div");
-
-
-          card.className =
-            "priority-card";
-
-
-          let priorityLabel =
-            "HIGH PRIORITY";
-
-
-          if (item.score <= 4) {
-
-            priorityLabel =
-              "CRITICAL GAP";
-
-          } else if (item.score <= 7) {
-
-            priorityLabel =
-              "HIGH PRIORITY";
-
-          } else {
-
-            priorityLabel =
-              "OPTIMISATION";
-
-          }
-
-
-          card.innerHTML = `
-
-            <div class="priority-top">
-
-              <div class="priority-number">
-                ${index + 1}
-              </div>
-
-              <h3>
-                ${item.category}
-              </h3>
-
-            </div>
-
-            <div class="priority-level">
-              ${priorityLabel}
-            </div>
-
-            <p>
-              ${area.description}
-            </p>
-
-            <ul class="action-list">
-
-              ${area.actions
-                .slice(0, 4)
-                .map(
-                  action =>
-                    `<li>${action}</li>`
-                )
-                .join("")}
-
-            </ul>
-
-          `;
-
-
-          priorityGrid.appendChild(card);
-
-        }
-      );
-
-
-      buildPersonalInsight(topThree);
-
-      buildTasks(topThree);
-
-      buildRoadmap(topThree);
-
-    }
-
-
-    /* =========================================================
-       PERSONAL INSIGHT
-    ========================================================= */
-
-    function buildPersonalInsight(topThree) {
-
-      if (!topThree.length) {
-
-        personalInsight.textContent =
-          "Complete the assessment to receive your personalized recommendations.";
-
-        return;
-
-      }
-
-
-      const first =
-        topThree[0].category;
-
-
-      const second =
-        topThree[1]
-          ? topThree[1].category
-          : "your digital presence";
-
-
-      const third =
-        topThree[2]
-          ? topThree[2].category
-          : "your customer journey";
-
-
-      if (finalScore < 30) {
-
-        personalInsight.textContent =
-          `Your strongest opportunity is ${first}. Start there before trying to improve everything at once. Once that foundation is working, move into ${second} and then ${third}.`;
-
-      } else if (finalScore < 48) {
-
-        personalInsight.textContent =
-          `${first} is currently your biggest opportunity. Strengthening it first should give you a better base for improving ${second} and ${third}.`;
-
-      } else {
-
-        personalInsight.textContent =
-          `Your digital foundation is developing well. Focus on optimising ${first}, strengthening ${second}, and then improving ${third} to turn your existing presence into more consistent growth.`;
-
-      }
-
-    }
-
-
-    /* =========================================================
-       TASKS
-    ========================================================= */
-
-    function getTaskStorageKey(category, actionIndex) {
-
-      return `zionflow_task_${encodeURIComponent(
-        category
-      )}_${actionIndex}`;
-
-    }
-
-
-    function buildTasks(topThree) {
-
-      taskList.innerHTML = "";
-
-
-      let taskIndex = 0;
-
-
-      topThree.forEach(item => {
-
-        const area =
-          growthAreas[item.category];
-
-
-        if (!area) return;
-
-
-        area.actions
-          .slice(0, 4)
-          .forEach(action => {
-
-            const storageKey =
-              getTaskStorageKey(
-                item.category,
-                taskIndex
-              );
-
-
-            const saved =
-              localStorage.getItem(storageKey) === "true";
-
-
-            const task =
-              document.createElement("label");
-
-
-            task.className =
-              saved
-                ? "task completed"
-                : "task";
-
-
-            task.innerHTML = `
-
-              <input
-                type="checkbox"
-                ${saved ? "checked" : ""}
-              >
-
-              <span>
-                ${action}
-              </span>
-
-            `;
-
-
-            const checkbox =
-              task.querySelector("input");
-
-
-            checkbox.addEventListener(
-              "change",
-              () => {
-
-                localStorage.setItem(
-                  storageKey,
-                  checkbox.checked
-                );
-
-
-                task.classList.toggle(
-                  "completed",
-                  checkbox.checked
-                );
-
-
-                updateTaskProgress();
-
-              }
-            );
-
-
-            taskList.appendChild(task);
-
-
-            taskIndex++;
-
-          });
-
-      });
-
-
-      updateTaskProgress();
-
-    }
-
-
-    function updateTaskProgress() {
-
-      const tasks =
-        document.querySelectorAll(
-          "#taskList input[type='checkbox']"
-        );
-
-
-      const total =
-        tasks.length;
-
-
-      let completed = 0;
-
-
-      tasks.forEach(task => {
-
-        if (task.checked) {
-
-          completed++;
-
-        }
-
-      });
-
-
-      const percentage =
-        total === 0
-          ? 0
-          : Math.round(
-              (completed / total) * 100
-            );
-
-
-      taskCount.textContent =
-        `${completed} of ${total} tasks complete`;
-
-
-      taskProgressBar.style.width =
-        `${percentage}%`;
-
-    }
-
-
-    /* =========================================================
-       ROADMAP
-    ========================================================= */
-
-    function buildRoadmap(topThree) {
-
-      const names =
-        topThree.map(
-          item => item.category
-        );
-
-
-      const first =
-        names[0] ||
-        "your digital foundations";
-
-
-      const second =
-        names[1] ||
-        "your online presence";
-
-
-      const third =
-        names[2] ||
-        "your customer journey";
-
-
-      roadmap30.textContent =
-        `Start with ${first}. Fix the biggest gaps, establish the essential systems and create a clear baseline for measuring improvement.`;
-
-
-      roadmap60.textContent =
-        `Build consistency around ${second}. Turn your new systems into repeatable weekly actions and make your online presence easier for customers to understand and trust.`;
-
-
-      roadmap90.textContent =
-        `Optimise ${third}. Improve the journey from attention to enquiry, strengthen follow-up and start measuring which digital activities create real business opportunities.`;
-
-    }
-
+    function showGrowthPlan() { window.location.href = "/growth-pro/"; }
 
     /* =========================================================
        RETAKE
@@ -3756,5 +2959,6 @@ function selectPlan(plan) {
 
   </script>
 
-</body>
+<nav class="journey-links" aria-label="ZionFlow services"><a href="/services/">Done-for-you services ↗</a><a href="/growth-pro/">Growth Pro sign in</a></nav>
+<script src="/assets/depth.js" type="module"></script><a class="zion-support" href="https://api.whatsapp.com/send/?phone=27671140936&text=Hi%20ZionFlow%20%F0%9F%91%8B%20I%20need%20some%20help." target="_blank" rel="noopener noreferrer" aria-label="Chat with ZionFlow on WhatsApp (opens a new tab)" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" focusable="false"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L3 20l1.2-4.6a8.5 8.5 0 1 1 16.3-3.9Z"/><path d="M8 7.5c-.9.8-.3 3.1 1.6 5s4.2 2.5 5 1.6l.9-1.1-2-1-1 1c-1.1-.5-2-1.4-2.5-2.5l1-1-1-2Z"/></svg><span>Chat with ZionFlow</span></a><script src="/assets/support.js" defer></script></body>
 </html>

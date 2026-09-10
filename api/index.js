@@ -7,6 +7,8 @@ require("dotenv").config({
 });
 
 const app = express();
+const workspace = require("./workspace");
+app.disable("x-powered-by");
 const PORT = process.env.PORT || 3000;
 
 // --------------------------------------------------
@@ -16,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = gemini.getGenerativeModel({
-  model: "gemini-3.6-flash"
+  model: process.env.GEMINI_MODEL || "gemini-3.6-flash"
 });
 
 // --------------------------------------------------
@@ -31,7 +33,10 @@ app.use(cors({
   ]
 }));
 
+require("./billing").mount(app, express);
 app.use(express.json({ limit: "1mb" }));
+app.use((req,res,next)=>{res.set("X-Content-Type-Options","nosniff");res.set("Referrer-Policy","strict-origin-when-cross-origin");if(req.path.startsWith("/api/"))res.set("Cache-Control","no-store");next();});
+workspace.mount(app);
 
 // --------------------------------------------------
 // Health Check
@@ -50,14 +55,14 @@ app.get("/api/health", (req, res) => {
 // AI Growth Assistant
 // --------------------------------------------------
 
-app.post("/api/ai", async (req, res) => {
+app.post("/api/ai", workspace.identity, workspace.entitlement, async (req, res) => {
   try {
-    const {
-      message,
-      businessProfile,
-      currentPlan,
-      currentTask
-    } = req.body;
+    const { message } = req.body || {};
+    if (typeof message !== 'string' || message.length > 4000) return res.status(400).json({success:false,error:'Please keep your question under 4,000 characters.'});
+    const rows = await workspace.db('workspaces?user_id=eq.' + encodeURIComponent(req.account.id) + '&select=profile,assessment,tasks');
+    const businessProfile = rows[0]?.profile || {};
+    const currentPlan = JSON.stringify(rows[0]?.assessment || {});
+    const currentTask = JSON.stringify(rows[0]?.tasks || []);
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({
@@ -73,6 +78,8 @@ app.post("/api/ai", async (req, res) => {
       });
     }
 
+    const allowed = await workspace.db('rpc/consume_ai_request',{method:'POST',body:JSON.stringify({account_id:req.account.id})});
+    if(!allowed) return res.status(429).json({success:false,error:'Please wait a minute before sending another question.'});
     const profile = businessProfile || {};
 
     const businessContext = `
@@ -143,7 +150,7 @@ console.log("ZionFlow: sending request to Gemini...");
     });
 
   } catch (error) {
-    console.error("ZionFlow AI error:", error);
+    console.error("ZionFlow AI request failed", { status: error.status || 500 });
 
     return res.status(500).json({
       success: false,
@@ -156,6 +163,10 @@ console.log("ZionFlow: sending request to Gemini...");
 // Start Server
 // --------------------------------------------------
 
+// Explicit public directories only: never serve .env, API source, or node_modules.
+const path = require("node:path");
+for (const dir of ["assets", "growth-pro", "app", "services"]) app.use("/" + dir, express.static(path.join(__dirname,"..",dir), {dotfiles:"deny"}));
+app.get("/",(req,res)=>res.sendFile(path.join(__dirname,"..","index.html")));
 app.listen(PORT, () => {
   console.log(`ZionFlow API running on port ${PORT}`);
 });

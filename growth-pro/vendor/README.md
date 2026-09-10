@@ -1,0 +1,1 @@
+Supabase JavaScript SDK 2.116.0. Official UMD distribution copied without modification from @supabase/supabase-js/dist/umd/supabase.js. MIT license in SUPABASE-LICENSE. No remote runtime scripts are fetched.

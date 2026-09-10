@@ -1,0 +1,25 @@
+{
+  "id": "/growth-pro/",
+  "name": "ZionFlow Growth Pro",
+  "short_name": "ZionFlow",
+  "description": "Your business growth workspace",
+  "start_url": "/growth-pro/",
+  "scope": "/growth-pro/",
+  "display": "standalone",
+  "background_color": "#f2f5f8",
+  "theme_color": "#0b1f3a",
+  "icons": [
+    {
+      "src": "/growth-pro/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/growth-pro/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

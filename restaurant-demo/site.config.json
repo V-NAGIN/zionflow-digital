@@ -1,0 +1,50 @@
+{
+  "brand": "olive & ember",
+  "descriptor": "NEIGHBOURHOOD CAF\u00c9",
+  "city": "Johannesburg",
+  "demo": true,
+  "items": [
+    {
+      "name": "Tomato & burrata toast",
+      "description": "Roasted tomatoes, basil oil, toasted sourdough.",
+      "price": "R95",
+      "category": "Kitchen",
+      "duration": ""
+    },
+    {
+      "name": "The slow breakfast",
+      "description": "Free-range eggs, mushrooms, sourdough & greens.",
+      "price": "R115",
+      "category": "Kitchen",
+      "duration": ""
+    },
+    {
+      "name": "Butter croissant",
+      "description": "Golden layers, baked for your morning ritual.",
+      "price": "R42",
+      "category": "Bakery",
+      "duration": ""
+    },
+    {
+      "name": "Almond pain au chocolat",
+      "description": "Dark chocolate, almond cream, a little indulgence.",
+      "price": "R55",
+      "category": "Bakery",
+      "duration": ""
+    },
+    {
+      "name": "Flat white",
+      "description": "A double shot with silky textured milk.",
+      "price": "R36",
+      "category": "Coffee",
+      "duration": ""
+    },
+    {
+      "name": "Honey oat latte",
+      "description": "Espresso, oat milk and a soft touch of honey.",
+      "price": "R44",
+      "category": "Coffee",
+      "duration": ""
+    }
+  ]
+}

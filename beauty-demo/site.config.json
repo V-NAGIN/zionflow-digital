@@ -1,0 +1,36 @@
+{
+  "brand": "MUSE.",
+  "descriptor": "HAIR & BEAUTY ATELIER",
+  "city": "Johannesburg",
+  "demo": true,
+  "items": [
+    {
+      "name": "Cut & finish",
+      "description": "A considered cut, shaped around you.",
+      "price": "R380",
+      "category": "Cut",
+      "duration": "45 min"
+    },
+    {
+      "name": "Signature colour",
+      "description": "Dimensional colour, with a personal consultation.",
+      "price": "R850",
+      "category": "Colour",
+      "duration": "120 min"
+    },
+    {
+      "name": "Natural texture",
+      "description": "Care and definition for curls and coils.",
+      "price": "R480",
+      "category": "Texture",
+      "duration": "75 min"
+    },
+    {
+      "name": "Scalp & restore",
+      "description": "A restorative ritual from root to end.",
+      "price": "R320",
+      "category": "Care",
+      "duration": "40 min"
+    }
+  ]
+}

@@ -171,7 +171,7 @@
             <div class="logo-drop">
               <input id="logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
               <strong>Upload your logo</strong>
-              <span>PNG, JPG, WEBP or SVG, up to 5 MB. Share it only when you're happy with your demo.</span>
+              <span>PNG, JPG, WEBP or SVG, up to 5 MB. Your logo is shared with ZionFlow when you request the website.</span>
             </div>
             <div class="logo-thumb" id="logoThumb">LOGO</div>
           </div>
@@ -190,7 +190,7 @@
           </select>
         </div>
       </div>
-      <p class="privacy">Your logo and preview stay in your browser while you are designing. When you request the website and agree to share, your preview screenshot, uploaded logo and business details are sent together by email through FormSubmit. Complete any verification shown on the submission page. Do not include confidential documents.</p>
+      <p class="privacy">Your logo and preview stay in your browser while you design. When you request this website, your details, preview image and uploaded logo are shared privately with ZionFlow for follow-up, and WhatsApp opens with your enquiry ready to send. Please do not upload confidential documents.</p>
       <div class="actions">
         <button class="btn btn-primary" type="submit">GENERATE MY CUSTOM DEMO</button>
       </div>
@@ -241,24 +241,19 @@
           <label for="customerMessage">Your message to ZionFlow (optional)</label>
           <textarea id="customerMessage" maxlength="1000" placeholder="Tell us what you like about the demo or what you would change."></textarea>
         </div>
-        <label class="request-consent" for="shareConsent">
-          <input id="shareConsent" type="checkbox">
-          <span>I agree to send my business details, message, my exact website preview screenshot and any logo I uploaded to ZionFlow by email using FormSubmit when I request this website. <strong>Nothing is submitted until I confirm on the next page.</strong></span>
-        </label>
-        <small class="hint">REQUEST THIS WEBSITE sends the website preview image and your uploaded logo together with your details. Complete the secure request form that opens to finish sending. No payment is taken. You can follow up on WhatsApp afterwards.</small>
+        <small class="hint">REQUEST THIS WEBSITE opens ZionFlow WhatsApp with your enquiry already written. Tap Send in WhatsApp to contact us. We also receive the demo screenshot and any uploaded logo for reference. No payment is taken.</small>
       </div>
       <div class="post-actions">
         <button class="btn btn-ghost" id="regenerate" type="button">UPDATE PREVIEW</button>
         <button class="btn btn-dark" id="quoteLink" type="button" aria-describedby="shareStatus" disabled>REQUEST THIS WEBSITE</button>
       </div>
       <div id="shareStatus" class="share-status" role="status" aria-live="polite"></div>
-      <div id="shareDownloads" class="share-downloads"></div>
-    </div>
+          </div>
   </section>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./share.js?v=request-files-20261020"></script>
+<script src="./share.js?v=whatsapp-request-20261020b"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);

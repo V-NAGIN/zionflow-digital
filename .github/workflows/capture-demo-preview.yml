@@ -1,0 +1,28 @@
+name: Capture Website Demo Screenshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tests/capture-demo-preview.mjs"
+      - ".github/workflows/capture-demo-preview.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser automation runtime
+        run: npm install --no-save --no-package-lock playwright-core@1.56.1
+      - name: Screenshot actual published customer preview with a sample logo
+        run: node tests/capture-demo-preview.mjs
+      - name: Upload preview screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: zionflow-website-demo-preview
+          path: artifacts/zionflow-demo-preview-sample.png
+          retention-days: 7

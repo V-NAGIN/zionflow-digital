@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync('website-demo-builder/share.js', 'utf8');
 const createdForms = [];
+const createdFrames = [];
 const openedLinks = [];
 const fallbackLinks = [];
 const listeners = new Map();
@@ -12,9 +13,8 @@ class DemoFile {
   constructor(parts, name, options = {}) {
     this.name = name;
     this.type = options.type || 'application/octet-stream';
-    this.size = parts.reduce((total, chunk) => {
-      return total + (typeof chunk === 'string' ? Buffer.byteLength(chunk) : (chunk && chunk.size) || 0);
-    }, 0);
+    this.size = parts.reduce((total, part) =>
+      total + (typeof part === 'string' ? Buffer.byteLength(part) : (part && part.size) || 0), 0);
   }
 }
 
@@ -31,32 +31,22 @@ class DemoClassList {
   add(item) { this.values.add(item); }
   remove(item) { this.values.delete(item); }
   contains(item) { return this.values.has(item); }
-  toggle(item, condition) { condition ? this.add(item) : this.remove(item); }
+  toggle(item, on) { on ? this.add(item) : this.remove(item); }
 }
 
 function element(id, value = '') {
   return {
-    id, value,
-    files: [],
-    disabled: false,
-    checked: false,
+    id, value, checked: false, disabled: false, files: [], name: '',
+    textContent: '', style: {cssText: ''},
     classList: new DemoClassList(id === 'demoWrap' ? ['show'] : []),
-    listeners: {},
-    children: [],
-    selectedOptions: [{textContent: value}],
-    addEventListener(name, listener) { this.listeners[name] = listener; },
+    children: [], listeners: {}, selectedOptions: [{textContent: value}],
+    addEventListener(type, handler) { this.listeners[type] = handler; },
     setAttribute(name, value) { this[name] = value; },
     appendChild(child) { this.children.push(child); return child; },
-    replaceChildren() { this.children = []; },
-    focus() {},
+    remove() { this.removed = true; },
     reportValidity() { return true; },
     querySelector() { return null; },
-    cloneNode() {
-      return {
-        outerHTML: '<div id="sitePreview">Approved mock design</div>',
-        querySelectorAll() { return []; }
-      };
-    }
+    focus() {},
   };
 }
 
@@ -75,123 +65,113 @@ const values = {
 };
 
 const ids = Object.fromEntries(
-  [
-    'quoteLink','shareStatus','shareDownloads','sitePreview','logo',
-    'demoForm','demoWrap','shareConsent', ...Object.keys(values)
-  ].map(id => [id, element(id, values[id] || '')])
+  ['quoteLink', 'shareStatus', 'sitePreview', 'logo', 'demoForm', 'demoWrap', 'regenerate', ...Object.keys(values)]
+    .map(id => [id, element(id, values[id] || '')])
 );
-
 for (const id of ['industry', 'goal', 'style']) {
   ids[id].selectedOptions = [{textContent: values[id]}];
 }
 ids.logo.files = [new DemoFile(['fake-logo-binary'], 'bakery-logo.png', {type: 'image/png'})];
 
 const document = {
-  body: {appendChild(child) { createdForms.push(child); return child; }},
+  body: {appendChild(child) {
+    if (child.tagName === 'FORM') createdForms.push(child);
+    if (child.tagName === 'IFRAME') createdFrames.push(child);
+    return child;
+  }},
   getElementById(id) { return ids[id]; },
-  querySelector(selector) {
-    if (selector === 'head style') return {textContent: '.site{color:#000}'};
-    return null;
-  },
+  addEventListener(type, callback) { listeners.set(type, callback); },
   createElement(tag) {
     const node = element(tag);
     node.tagName = tag.toUpperCase();
-    node.remove = () => {};
     if (tag === 'form') node.submit = () => {node.submitted = true;};
     return node;
   },
-  addEventListener(name, handler) { listeners.set(name, handler); }
 };
 
 const browser = {
+  devicePixelRatio: 1,
   location: {
     origin: 'https://app.zionflow.co.za',
     pathname: '/website-demo-builder/',
-    assign(url) { fallbackLinks.push(url); }
+    assign(url) {fallbackLinks.push(url);}
   },
   open(url, target) {
     openedLinks.push({url, target});
     return {opener: browser};
   },
-  devicePixelRatio: 1,
   html2canvas: async () => ({
-    toBlob(callback) {
-      callback({size: 2800, type: 'image/png'});
-    }
+    toBlob(callback) {callback({size: 2800, type: 'image/png'});}
   }),
-  setTimeout
+  setTimeout(fn, delay) {
+    if (delay >= 120000) return 1; // Don't keep the test runner alive for cleanup.
+    return setTimeout(fn, delay);
+  }
 };
 
-class DemoFileReader {
-  readAsDataURL() {
-    this.result = 'data:image/png;base64,bW9jay1sb2dv';
-    queueMicrotask(() => this.onload());
-  }
-}
-
 const sandbox = {
-  document,
-  window: browser,
+  document, window: browser,
   navigator: {},
-  File: DemoFile,
-  FileReader: DemoFileReader,
-  DataTransfer: DemoTransfer,
-  URL: {
-    createObjectURL: () => 'blob:mock-website-demo',
-    revokeObjectURL() {}
-  },
-  setTimeout,
-  console
+  File: DemoFile, DataTransfer: DemoTransfer,
+  URL: {createObjectURL: () => 'blob:demo', revokeObjectURL() {}},
+  setTimeout, console
 };
 
 vm.runInNewContext(source, sandbox, {filename: 'website-demo-builder/share.js'});
-assert.equal(typeof listeners.get('zf-demo-rendered'), 'function', 'Must prepare attachments after preview render');
-
+assert.equal(typeof listeners.get('zf-demo-rendered'), 'function');
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));
 
-
-assert.equal(ids.quoteLink.disabled, false, 'The request should be enabled only after the preview screenshot exists');
+assert.equal(ids.quoteLink.disabled, false);
 assert.equal(ids.quoteLink.textContent, 'REQUEST THIS WEBSITE');
+assert.equal(createdForms.length, 0, 'Files must not be sent just by generating a preview');
 
 ids.quoteLink.listeners.click();
-assert.equal(createdForms.length, 0, 'Request must require explicit file-sharing consent');
+assert.equal(openedLinks.length, 1, 'Request must open WhatsApp in one click');
+assert.equal(openedLinks[0].target, '_blank');
+assert.ok(openedLinks[0].url.startsWith('https://wa.me/27833110552?text='));
+assert.match(decodeURIComponent(openedLinks[0].url), /R499\/month, up-to-3-page website/);
+assert.match(decodeURIComponent(openedLinks[0].url), /Business: Pretend Bakery/);
+assert.match(decodeURIComponent(openedLinks[0].url), /Please keep the gold header/);
+assert.equal(fallbackLinks.length, 0);
 
-ids.shareConsent.checked = true;
-ids.quoteLink.listeners.click();
-
-assert.equal(createdForms.length, 1, 'Main request must create one submission with preview and logo');
+assert.equal(createdFrames.length, 1, 'Background upload must use a hidden frame');
+assert.equal(createdFrames[0].getAttribute ?? null, null);
+assert.equal(createdForms.length, 1, 'Background upload must create one submission');
 const submission = createdForms[0];
-assert.equal(submission.submitted, true);
 assert.equal(submission.method, 'POST');
 assert.equal(submission.enctype, 'multipart/form-data');
 assert.equal(submission.action, 'https://formsubmit.co/hello@zionflow.co.za');
-assert.equal(submission.target, '_blank');
+assert.equal(submission.target, createdFrames[0].name);
+assert.notEqual(submission.target, '_blank', 'FormSubmit must not open a customer-facing tab');
+assert.equal(submission.submitted, true);
 
 const fields = Object.fromEntries(
-  submission.children.filter(item => item.type === 'hidden').map(item => [item.name, item.value])
+  submission.children.filter(child => child.type === 'hidden').map(child => [child.name, child.value])
 );
+assert.equal(fields._captcha, 'false');
 assert.equal(fields.business_name, 'Pretend Bakery');
 assert.equal(fields.email, 'bakery@example.test');
 assert.match(fields.message, /Cakes, pastries and coffee/);
 assert.match(fields.message, /Please keep the gold header/);
-assert.match(fields.attachments, /preview screenshot.*customer logo image/i);
+assert.ok(fields.source_page.startsWith('https://app.zionflow.co.za'));
 
-const fileFields = submission.children.filter(item => item.type === 'file');
-assert.equal(fileFields.length, 2, 'Every uploaded logo must be included alongside the screenshot');
-assert.equal(fileFields.find(item => item.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
-assert.ok(fileFields.find(item => item.name === 'demo_preview').files[0].name.endsWith('-website-demo.png'));
+const files = submission.children.filter(child => child.type === 'file');
+assert.equal(files.length, 2, 'Background submission must contain image and logo');
+assert.equal(files.find(f => f.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
+assert.ok(files.find(f => f.name === 'demo_preview').files[0].name.endsWith('-website-demo.png'));
 
-assert.equal(openedLinks.length, 0, 'The main request must not open text-only WhatsApp');
-assert.equal(fallbackLinks.length, 0, 'The main request must not redirect to a text-only WhatsApp link');
-const whatsappFollowUp = ids.shareDownloads.children.find(item => item.textContent === 'FOLLOW UP ON WHATSAPP');
-assert.ok(whatsappFollowUp, 'WhatsApp follow-up remains available after the attached request starts');
-assert.ok(whatsappFollowUp.href.startsWith('https://wa.me/27833110552?text='), 'Follow-up link must target the confirmed ZionFlow WhatsApp');
+ids.quoteLink.listeners.click();
+assert.equal(openedLinks.length, 2);
+assert.equal(createdForms.length, 1, 'Repeated clicks must not double-submit attachments');
 
-browser.html2canvas = async () => { throw new Error('Simulated screenshot failure'); };
+browser.html2canvas = async () => {throw new Error('Simulated screenshot failure');};
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));
-assert.equal(ids.quoteLink.disabled, true, 'Never accept a screenshot-free request');
-assert.match(ids.shareStatus.textContent, /Could not prepare your exact website image/i);
+assert.equal(ids.quoteLink.disabled, false, 'WhatsApp request must work when optional image preparation fails');
+ids.quoteLink.listeners.click();
+assert.equal(openedLinks.length, 3);
+assert.equal(createdForms.length, 1, 'A broken screenshot must never be replaced by the wrong file');
+assert.match(ids.shareStatus.textContent, /could not automatically save your preview image/i);
 
-console.log('Primary website request requires consent, logo + screenshot attachments, and blocks missing previews: OK');
+console.log('WhatsApp request, hidden attachment submission, duplicate safety and fallback: OK');

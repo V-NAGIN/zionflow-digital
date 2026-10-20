@@ -27,16 +27,24 @@ jobs:
         run: |
           node tests/demo-check.mjs
           node tests/demo-submission-flow.mjs
-      - name: Check the published website demo
+      - name: Verify published WhatsApp request wiring
         if: github.ref == 'refs/heads/main'
-        continue-on-error: true
         run: |
-          curl --fail --location --silent --show-error --max-time 20 --retry 2 \
-            https://app.zionflow.co.za/website-demo-builder/ \
-            --output /tmp/zf-demo-live.html
-          curl --fail --location --silent --show-error --max-time 20 --retry 2 \
-            https://app.zionflow.co.za/website-demo-builder/share.js \
-            --output /tmp/zf-demo-live.js
-          grep -q 'id="shareConsent"' /tmp/zf-demo-live.html
-          grep -q 'formsubmit.co/hello@zionflow.co.za' /tmp/zf-demo-live.js
-          echo 'The published custom demo includes the logo/preview request flow.'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if curl --fail --location --silent --show-error --max-time 20 \
+              https://app.zionflow.co.za/website-demo-builder/ \
+              --output /tmp/zf-demo-live.html &&
+              curl --fail --location --silent --show-error --max-time 20 \
+              https://app.zionflow.co.za/website-demo-builder/share.js \
+              --output /tmp/zf-demo-live.js &&
+              grep -q 'id="quoteLink"' /tmp/zf-demo-live.html &&
+              grep -q 'ZIONFLOW_WHATSAPP_NUMBER' /tmp/zf-demo-live.js &&
+              grep -q "window.open(url, '_blank')" /tmp/zf-demo-live.js; then
+              echo 'Published Request button now opens ZionFlow WhatsApp.'
+              exit 0
+            fi
+            echo "Publication pending (attempt ${attempt}/8)."
+            sleep 20
+          done
+          echo 'Published WhatsApp change could not be verified.'
+          exit 1

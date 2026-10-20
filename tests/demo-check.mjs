@@ -17,7 +17,7 @@ for (const needle of [
   'id="shareDownloads"',
   'id="shareConsent"',
   'id="customerMessage"',
-  'src="./share.js?v=whatsapp-20261020"',
+  'src="./share.js?v=request-files-20261020"',
   "zf-demo-rendered",
   "html2canvas.min.js"
 ]) {
@@ -29,8 +29,8 @@ for (const needle of [
   "website-demo.png",
   "website-demo.html",
   "ZIONFLOW_WHATSAPP_NUMBER = '27833110552'",
-  "window.open(url, '_blank')",
-  "window.location.assign(url)",
+  "button.addEventListener('click', emailRequestDemo)",
+  "preview_image_file",
   "https://formsubmit.co/hello@zionflow.co.za",
   "multipart/form-data",
   "demo_preview",
@@ -48,4 +48,4 @@ if (!page.includes('type="button" id="quoteLink"') && !page.includes('id="quoteL
   throw new Error("The request button must remain a native button");
 }
 
-console.log("ZionFlow custom demo source, WhatsApp redirect and optional attachments: OK");
+console.log("ZionFlow custom demo source, required screenshot and logo attachments: OK");

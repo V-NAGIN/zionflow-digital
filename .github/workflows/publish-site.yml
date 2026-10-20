@@ -41,3 +41,26 @@ jobs:
       - name: Deploy ZionFlow app website
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify live WhatsApp request and private file handoff
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8; do
+            stamp="$(date +%s)-${attempt}"
+            if curl --fail --location --silent --show-error --max-time 20 \
+                "https://app.zionflow.co.za/website-demo-builder/?release=${stamp}" \
+                --output /tmp/zf-demo-live.html &&
+               curl --fail --location --silent --show-error --max-time 20 \
+                "https://app.zionflow.co.za/website-demo-builder/share.js?release=${stamp}" \
+                --output /tmp/zf-demo-live.js &&
+               grep -q 'whatsapp-request-20261020b' /tmp/zf-demo-live.html &&
+               grep -q "button.addEventListener('click', requestDemo)" /tmp/zf-demo-live.js &&
+               grep -q "window.open(url, '_blank')" /tmp/zf-demo-live.js &&
+               grep -q "form.target = frame.name" /tmp/zf-demo-live.js &&
+               ! grep -q 'id="shareDownloads"' /tmp/zf-demo-live.html; then
+              echo "Published page verified: WhatsApp main request, private attachment form, no extra download controls."
+              exit 0
+            fi
+            echo "Waiting for published site to refresh: attempt ${attempt}/8"
+            sleep 12
+          done
+          echo "Published website did not expose the expected WhatsApp request release."
+          exit 1

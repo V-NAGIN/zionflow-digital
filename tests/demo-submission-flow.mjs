@@ -180,13 +180,13 @@ assert.match(fields.attachments, /preview screenshot.*customer logo image/i);
 const fileFields = submission.children.filter(item => item.type === 'file');
 assert.equal(fileFields.length, 2, 'Every uploaded logo must be included alongside the screenshot');
 assert.equal(fileFields.find(item => item.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
-assert.match(fileFields.find(item => item.name === 'demo_preview').files[0].name, /website-demo\\.png$/);
+assert.ok(fileFields.find(item => item.name === 'demo_preview').files[0].name.endsWith('-website-demo.png'));
 
 assert.equal(openedLinks.length, 0, 'The main request must not open text-only WhatsApp');
 assert.equal(fallbackLinks.length, 0, 'The main request must not redirect to a text-only WhatsApp link');
 const whatsappFollowUp = ids.shareDownloads.children.find(item => item.textContent === 'FOLLOW UP ON WHATSAPP');
 assert.ok(whatsappFollowUp, 'WhatsApp follow-up remains available after the attached request starts');
-assert.match(whatsappFollowUp.href, /^https:\\/\\/wa\\.me\\/27833110552\\?text=/);
+assert.ok(whatsappFollowUp.href.startsWith('https://wa.me/27833110552?text='), 'Follow-up link must target the confirmed ZionFlow WhatsApp');
 
 browser.html2canvas = async () => { throw new Error('Simulated screenshot failure'); };
 listeners.get('zf-demo-rendered')();

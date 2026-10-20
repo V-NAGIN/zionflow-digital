@@ -213,7 +213,7 @@
       snapshot = {png, logo, html};
       button.disabled = false;
       notice(png
-        ? 'Your demo and logo are ready. Tap REQUEST THIS WEBSITE to send both with your enquiry.'
+        ? 'Your demo and logo are ready. Tap REQUEST THIS WEBSITE, choose WhatsApp, and send them to ZionFlow (+27 83 311 0552).'
         : 'Your exact demo file is ready. Tap REQUEST THIS WEBSITE for sharing options.');
     } catch (error) {
       if (version !== captureVersion) return;
@@ -236,7 +236,7 @@
           text: message(),
           files
         });
-        notice('Your share sheet has closed. If you selected WhatsApp, make sure you tap Send so ZionFlow receives the demo and logo.');
+        notice('Your share sheet has closed. Please confirm that you selected ZionFlow (+27 83 311 0552) and tapped Send; delivery cannot be confirmed from this page.');
         return;
       } catch (err) {
         if (err && err.name === 'AbortError') {

@@ -15,6 +15,8 @@ for (const needle of [
   'id="sitePreview"',
   'id="shareStatus"',
   'id="shareDownloads"',
+  'id="shareConsent"',
+  'id="customerMessage"',
   'src="./share.js"',
   "zf-demo-rendered",
   "html2canvas.min.js"
@@ -22,7 +24,20 @@ for (const needle of [
   if (!page.includes(needle)) throw new Error("Missing builder integration: " + needle);
 }
 
-for (const needle of ["navigator.share", "website-demo.png", "website-demo.html", "wa.me/27833110552"]) {
+for (const needle of [
+  "navigator.share",
+  "website-demo.png",
+  "website-demo.html",
+  "wa.me/27833110552",
+  "https://formsubmit.co/hello@zionflow.co.za",
+  "multipart/form-data",
+  "demo_preview",
+  "logo_attachment",
+  "DataTransfer",
+  "form.submit()",
+  "shareConsent",
+  "customerMessage"
+]) {
   if (!sharing.includes(needle)) throw new Error("Missing file-sharing behavior: " + needle);
 }
 
@@ -30,4 +45,4 @@ if (!page.includes('type="button" id="quoteLink"') && !page.includes('id="quoteL
   throw new Error("The request button must remain a native button");
 }
 
-console.log("ZionFlow custom demo source and sharing integration: OK");
+console.log("ZionFlow custom demo source, email attachments, consent and WhatsApp sharing integration: OK");

@@ -27,3 +27,16 @@ jobs:
         run: |
           node tests/demo-check.mjs
           node tests/demo-submission-flow.mjs
+      - name: Check the published website demo
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        run: |
+          curl --fail --location --silent --show-error --max-time 20 --retry 2 \
+            https://app.zionflow.co.za/website-demo-builder/ \
+            --output /tmp/zf-demo-live.html
+          curl --fail --location --silent --show-error --max-time 20 --retry 2 \
+            https://app.zionflow.co.za/website-demo-builder/share.js \
+            --output /tmp/zf-demo-live.js
+          grep -q 'id="shareConsent"' /tmp/zf-demo-live.html
+          grep -q 'formsubmit.co/hello@zionflow.co.za' /tmp/zf-demo-live.js
+          echo 'The published custom demo includes the logo/preview request flow.'

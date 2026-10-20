@@ -1,5 +1,5 @@
-/* ZionFlow Custom Demo — customer-initiated quote submissions with demo/logo attachments.
-   No files leave the browser until the visitor consents and requests the website. */
+/* ZionFlow Custom Demo — website requests must include the generated preview image
+   and any uploaded business logo. Files leave the browser only after explicit consent. */
 (() => {
   'use strict';
 
@@ -18,7 +18,7 @@
   const mimeOk = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']);
   const MAX_LOGO_BYTES = 5 * 1024 * 1024;
   const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
-  const MAX_COMBINED_BYTES = 9 * 1024 * 1024; // Applies to optional email attachments only.
+  const MAX_COMBINED_BYTES = 9 * 1024 * 1024; // Keep under FormSubmit's 10 MB combined file limit.
   const SUBMISSION_ENDPOINT = 'https://formsubmit.co/hello@zionflow.co.za';
   const ZIONFLOW_WHATSAPP_NUMBER = '27833110552'; // Existing ZionFlow WhatsApp target.
 
@@ -207,23 +207,14 @@
     downloads.appendChild(a);
   }
 
-  function emailOption() {
-    const emailButton = document.createElement('button');
-    emailButton.type = 'button';
-    emailButton.className = 'btn btn-ghost';
-    emailButton.textContent = 'EMAIL DEMO & LOGO';
-    emailButton.addEventListener('click', emailRequestDemo);
-    downloads.appendChild(emailButton);
-  }
-
   async function prepare() {
     const version = ++captureVersion;
     snapshot = null;
     clearDownloads();
 
-    // Requesting through WhatsApp does not depend on screenshot capture.
-    button.disabled = false;
-    notice('Your website demo is ready. REQUEST THIS WEBSITE opens ZionFlow WhatsApp with your enquiry filled in. Optional demo files are being prepared.');
+    button.disabled = true;
+    button.textContent = 'PREPARING DEMO FILES…';
+    notice('Preparing the exact preview image and uploaded logo for your request. Please wait a moment.');
 
     try {
       getLogo();
@@ -239,17 +230,18 @@
       }
 
       snapshot = {png, logo, html};
+      button.disabled = false;
+      button.textContent = 'REQUEST THIS WEBSITE';
       downloadLink(html, 'DOWNLOAD INTERACTIVE DEMO');
       downloadLink(png, 'DOWNLOAD DEMO IMAGE');
       if (logo) downloadLink(logo, 'DOWNLOAD MY LOGO');
-      emailOption();
-      addDeviceShareOption();
-      notice('Ready. Tap REQUEST THIS WEBSITE to open ZionFlow WhatsApp. To send your demo image or logo, attach the downloaded files in WhatsApp or use the optional email button.');
+      notice('Your preview is ready. Tick the consent box and choose REQUEST THIS WEBSITE to send the design screenshot, business details and uploaded logo together to ZionFlow.');
     } catch (error) {
       if (version !== captureVersion) return;
       snapshot = null;
-      button.disabled = false;
-      notice('Your WhatsApp request is ready. Optional demo-file sharing is unavailable in this browser; you can still tap REQUEST THIS WEBSITE.');
+      button.disabled = true;
+      button.textContent = 'PREVIEW IMAGE NOT READY';
+      notice('Could not prepare your exact website image. Tap UPDATE PREVIEW to retry; a request without the preview image cannot be sent. ' + (error && error.message ? error.message : ''), true);
     }
   }
 
@@ -278,30 +270,6 @@
     }
 
     form.appendChild(input);
-  }
-
-  function requestDemo() {
-    if (!byId('demoWrap').classList.contains('show') || !byId('demoForm').reportValidity()) {
-      notice('Please generate your demo and check your business details first.', true);
-      return;
-    }
-
-    // A direct user-initiated WhatsApp navigation, including when this builder
-    // is embedded in another page. No email upload happens from this button.
-    const url = whatsappUrl();
-    whatsappLink('OPEN ZIONFLOW WHATSAPP');
-    notice('Opening ZionFlow WhatsApp with your request prefilled. Review it and tap Send in WhatsApp. Demo files are not automatically attached.');
-
-    try {
-      const opened = window.open(url, '_blank');
-      if (opened) {
-        try { opened.opener = null; } catch (_) {}
-      } else {
-        window.location.assign(url);
-      }
-    } catch (_) {
-      window.location.assign(url);
-    }
   }
 
   function emailRequestDemo() {
@@ -342,15 +310,18 @@
     form.rel = 'noopener';
     form.hidden = true;
 
-    appendHidden(form, '_subject', 'ZionFlow website demo request - ' + safeName());
+    appendHidden(form, '_subject', 'ZionFlow website preview + logo request - ' + safeName());
     appendHidden(form, '_template', 'table');
+    appendHidden(form, '_captcha', 'true');
     appendHidden(form, '_honey', '');
     appendHidden(form, 'business_name', byId('business').value.trim());
     appendHidden(form, 'email', byId('email').value.trim());
     appendHidden(form, 'phone', byId('phone').value.trim());
     appendHidden(form, 'message', message());
     appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
-    appendHidden(form, 'attachments', 'demo_preview and uploaded business logo');
+    appendHidden(form, 'attachments', snapshot.logo ? 'Website preview screenshot + customer logo image' : 'Website preview screenshot (customer did not upload a logo)');
+    appendHidden(form, 'preview_image_file', snapshot.png.name);
+    appendHidden(form, 'logo_image_file', snapshot.logo ? snapshot.logo.name : 'No logo uploaded');
 
     try {
       appendAttachment(form, 'demo_preview', snapshot.png);
@@ -371,10 +342,12 @@
       form.submit();
       clearDownloads();
       downloadLink(snapshot.html, 'DOWNLOAD INTERACTIVE DEMO');
+      downloadLink(snapshot.png, 'DOWNLOAD DEMO IMAGE');
+      if (snapshot.logo) downloadLink(snapshot.logo, 'DOWNLOAD MY LOGO');
       whatsappLink('FOLLOW UP ON WHATSAPP');
       addDeviceShareOption();
 
-      notice('Your submission has opened in a new tab. Complete any verification shown there to send the message, website demo image and uploaded logo together to ZionFlow. A WhatsApp follow-up is optional.');
+      notice('A secure request form has opened in a new tab with your website screenshot and logo attached. Complete the verification and submission shown there. The request is not confirmed until that page says it was submitted. ZionFlow will receive the files by email.');
     } catch (error) {
       notice('The request could not be opened. Please try again or use the sharing options below.', true);
       clearDownloads();
@@ -421,5 +394,5 @@
     notice('Your business details changed. Tap UPDATE PREVIEW to make sure ZionFlow receives the exact demo you approve.');
   });
   document.addEventListener('zf-demo-rendered', prepare);
-  button.addEventListener('click', requestDemo);
+  button.addEventListener('click', emailRequestDemo);
 })();

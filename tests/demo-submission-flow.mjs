@@ -150,33 +150,24 @@ assert.equal(typeof listeners.get('zf-demo-rendered'), 'function', 'Must prepare
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));
 
-assert.equal(ids.quoteLink.disabled, false, 'WhatsApp request must be enabled');
+
+assert.equal(ids.quoteLink.disabled, false, 'The request should be enabled only after the preview screenshot exists');
+assert.equal(ids.quoteLink.textContent, 'REQUEST THIS WEBSITE');
 
 ids.quoteLink.listeners.click();
-assert.equal(openedLinks.length, 1, 'Request must immediately open WhatsApp');
-assert.equal(openedLinks[0].target, '_blank');
-assert.match(openedLinks[0].url, /^https:\/\/wa\.me\/27833110552\?text=/);
-const whatsappText = new URL(openedLinks[0].url).searchParams.get('text');
-assert.match(whatsappText, /Pretend Bakery/);
-assert.match(whatsappText, /Cakes, pastries and coffee/);
-assert.match(whatsappText, /Please keep the gold header/);
-assert.equal(createdForms.length, 0, 'Request must not transmit files via email');
+assert.equal(createdForms.length, 0, 'Request must require explicit file-sharing consent');
 
-const emailButton = ids.shareDownloads.children.find(
-  item => item.textContent === 'EMAIL DEMO & LOGO'
-);
-assert.ok(emailButton, 'Email attachment option must remain available');
-emailButton.listeners.click();
-assert.equal(createdForms.length, 0, 'Email attachments require explicit consent');
 ids.shareConsent.checked = true;
-emailButton.listeners.click();
+ids.quoteLink.listeners.click();
 
-assert.equal(createdForms.length, 1, 'Email option should create one submission');
+assert.equal(createdForms.length, 1, 'Main request must create one submission with preview and logo');
 const submission = createdForms[0];
 assert.equal(submission.submitted, true);
 assert.equal(submission.method, 'POST');
 assert.equal(submission.enctype, 'multipart/form-data');
 assert.equal(submission.action, 'https://formsubmit.co/hello@zionflow.co.za');
+assert.equal(submission.target, '_blank');
+
 const fields = Object.fromEntries(
   submission.children.filter(item => item.type === 'hidden').map(item => [item.name, item.value])
 );
@@ -184,14 +175,23 @@ assert.equal(fields.business_name, 'Pretend Bakery');
 assert.equal(fields.email, 'bakery@example.test');
 assert.match(fields.message, /Cakes, pastries and coffee/);
 assert.match(fields.message, /Please keep the gold header/);
+assert.match(fields.attachments, /preview screenshot.*customer logo image/i);
+
 const fileFields = submission.children.filter(item => item.type === 'file');
-assert.equal(fileFields.length, 2);
+assert.equal(fileFields.length, 2, 'Every uploaded logo must be included alongside the screenshot');
 assert.equal(fileFields.find(item => item.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
-assert.match(fileFields.find(item => item.name === 'demo_preview').files[0].name, /website-demo\.png$/);
+assert.match(fileFields.find(item => item.name === 'demo_preview').files[0].name, /website-demo\\.png$/);
 
-browser.open = () => null;
-ids.quoteLink.listeners.click();
-assert.equal(fallbackLinks.length, 1, 'Blocked popup should use same-tab fallback');
-assert.match(fallbackLinks[0], /^https:\/\/wa\.me\/27833110552\?text=/);
+assert.equal(openedLinks.length, 0, 'The main request must not open text-only WhatsApp');
+assert.equal(fallbackLinks.length, 0, 'The main request must not redirect to a text-only WhatsApp link');
+const whatsappFollowUp = ids.shareDownloads.children.find(item => item.textContent === 'FOLLOW UP ON WHATSAPP');
+assert.ok(whatsappFollowUp, 'WhatsApp follow-up remains available after the attached request starts');
+assert.match(whatsappFollowUp.href, /^https:\\/\\/wa\\.me\\/27833110552\\?text=/);
 
-console.log('WhatsApp Request redirect and optional email attachments: OK');
+browser.html2canvas = async () => { throw new Error('Simulated screenshot failure'); };
+listeners.get('zf-demo-rendered')();
+await new Promise(resolve => setTimeout(resolve, 10));
+assert.equal(ids.quoteLink.disabled, true, 'Never accept a screenshot-free request');
+assert.match(ids.shareStatus.textContent, /Could not prepare your exact website image/i);
+
+console.log('Primary website request requires consent, logo + screenshot attachments, and blocks missing previews: OK');

@@ -49,6 +49,6 @@ assert.match(sharing, /R499\/month, up-to-3-page website/, 'Keep original WhatsA
 assert.ok(!sharing.includes('DOWNLOAD INTERACTIVE DEMO'), 'Remove extra downloads');
 assert.ok(!sharing.includes('FOLLOW UP ON WHATSAPP'), 'Remove duplicate follow-up button');
 assert.ok(!sharing.includes('SHARE DEMO & LOGO'), 'Remove duplicate share button');
-assert.ok(page.includes('type="button" id="quoteLink"'), 'Use native Request button');
+assert.match(page, /<button[^>]*id="quoteLink"[^>]*type="button"/, 'Use native Request button');
 
 console.log('ZionFlow custom demo preserves WhatsApp request and private asset intake: OK');

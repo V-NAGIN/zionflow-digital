@@ -27,6 +27,24 @@ jobs:
         run: |
           node tests/demo-check.mjs
           node tests/demo-submission-flow.mjs
+      - name: Diagnose live site origin and script
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "DNS records for app.zionflow.co.za:"
+          (getent ahostsv4 app.zionflow.co.za || true) | head -3
+          echo "Response headers (non-sensitive):"
+          curl --location --silent --show-error --max-time 20 --dump-header /tmp/zf-live-headers.txt \
+            "https://app.zionflow.co.za/website-demo-builder/share.js?deploydiag=$(date +%s)" \
+            --output /tmp/zf-live-diag.js || true
+          grep -Ei '^(HTTP/|server:|date:|last-modified:|etag:|cache-control:|cf-cache-status:|location:)' /tmp/zf-live-headers.txt || true
+          echo "Live script bytes and known markers:"
+          wc -c /tmp/zf-live-diag.js || true
+          grep -oE '(ZIONFLOW_WHATSAPP_NUMBER|SUBMISSION_ENDPOINT|function requestDemo|form.submit\(\))' /tmp/zf-live-diag.js | sort -u || true
+          echo "Live HTML marker:"
+          curl --location --silent --show-error --max-time 20 \
+            "https://app.zionflow.co.za/website-demo-builder/?deploydiag=$(date +%s)" \
+            --output /tmp/zf-live-diag.html || true
+          grep -oE 'share.js[^"]*|REQUEST THIS WEBSITE' /tmp/zf-live-diag.html | head -5 || true
       - name: Verify published WhatsApp request wiring
         if: github.ref == 'refs/heads/main'
         run: |

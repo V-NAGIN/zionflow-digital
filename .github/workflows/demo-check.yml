@@ -5,11 +5,13 @@ on:
     paths:
       - "website-demo-builder/**"
       - "tests/demo-check.mjs"
+      - "tests/demo-submission-flow.mjs"
       - ".github/workflows/demo-check.yml"
   pull_request:
     paths:
       - "website-demo-builder/**"
       - "tests/demo-check.mjs"
+      - "tests/demo-submission-flow.mjs"
       - ".github/workflows/demo-check.yml"
 
 permissions:
@@ -22,4 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Check demo JavaScript and integration
-        run: node tests/demo-check.mjs
+        run: |
+          node tests/demo-check.mjs
+          node tests/demo-submission-flow.mjs

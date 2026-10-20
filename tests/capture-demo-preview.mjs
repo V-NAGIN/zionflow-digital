@@ -55,10 +55,54 @@ try {
     logoVisible: await page.locator('#previewMark img').count() > 0,
     requestButtonText: await page.locator('#quoteLink').textContent(),
     requestButtonEnabled: await page.locator('#quoteLink').isEnabled(),
-    consentText: await page.locator('label[for="shareConsent"] span').textContent(),
+    downloadControls: await page.locator('#shareDownloads').count(),
+    extraConsent: await page.locator('#shareConsent').count(),
   };
   console.log('Live website preview screenshot captured:', JSON.stringify(detail));
   if (!detail.logoVisible || !detail.previewVisible) throw new Error('Logo or preview missing from rendered screen');
+  if (detail.downloadControls || detail.extraConsent) throw new Error('Obsolete download or form confirmation controls remain');
+
+  // Verify the public page really opens the prefilled WhatsApp enquiry.
+  // Intercept file delivery to avoid sending a fake test lead to ZionFlow.
+  const intakeRequests = [];
+  await page.route('https://formsubmit.co/**', async route => {
+    const request = route.request();
+    if (request.method() === 'POST') {
+      intakeRequests.push({
+        url: request.url(),
+        body: request.postDataBuffer()?.toString('utf8') || '',
+      });
+    }
+    await route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Test intercepted</title>' });
+  });
+  await page.evaluate(() => {
+    window.__zfWhatsAppOpened = [];
+    window.open = (url, target) => {
+      window.__zfWhatsAppOpened.push({ url, target });
+      return { opener: null };
+    };
+  });
+
+  await page.locator('#quoteLink').click();
+  const whatsapp = await page.evaluate(() => window.__zfWhatsAppOpened);
+  if (whatsapp.length !== 1 || !whatsapp[0].url.startsWith('https://wa.me/27833110552?text=')) {
+    throw new Error('REQUEST THIS WEBSITE did not open the established ZionFlow WhatsApp');
+  }
+  if (!decodeURIComponent(whatsapp[0].url).includes('R499/month, up-to-3-page website')) {
+    throw new Error('The established WhatsApp enquiry message changed');
+  }
+
+  for (let attempt = 0; attempt < 30 && !intakeRequests.length; attempt++) {
+    await page.waitForTimeout(300);
+  }
+  if (intakeRequests.length !== 1) {
+    throw new Error('Expected one private background screenshot/logo request; got ' + intakeRequests.length);
+  }
+  const multipart = intakeRequests[0].body;
+  if (!multipart.includes('name="demo_preview"') || !multipart.includes('name="logo_attachment"')) {
+    throw new Error('Background request did not contain both demo screenshot and uploaded logo');
+  }
+  console.log('Public one-click WhatsApp and privately intercepted screenshot/logo upload: OK');
 } finally {
   await browser.close();
 }

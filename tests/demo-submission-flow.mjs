@@ -4,6 +4,8 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync('website-demo-builder/share.js', 'utf8');
 const createdForms = [];
+const openedLinks = [];
+const fallbackLinks = [];
 const listeners = new Map();
 
 class DemoFile {
@@ -43,6 +45,7 @@ function element(id, value = '') {
     children: [],
     selectedOptions: [{textContent: value}],
     addEventListener(name, listener) { this.listeners[name] = listener; },
+    setAttribute(name, value) { this[name] = value; },
     appendChild(child) { this.children.push(child); return child; },
     replaceChildren() { this.children = []; },
     focus() {},
@@ -101,7 +104,15 @@ const document = {
 };
 
 const browser = {
-  location: {origin: 'https://app.zionflow.co.za', pathname: '/website-demo-builder/'},
+  location: {
+    origin: 'https://app.zionflow.co.za',
+    pathname: '/website-demo-builder/',
+    assign(url) { fallbackLinks.push(url); }
+  },
+  open(url, target) {
+    openedLinks.push({url, target});
+    return {opener: browser};
+  },
   devicePixelRatio: 1,
   html2canvas: async () => ({
     toBlob(callback) {
@@ -138,21 +149,34 @@ assert.equal(typeof listeners.get('zf-demo-rendered'), 'function', 'Must prepare
 
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));
-assert.equal(ids.quoteLink.disabled, false, 'Request button should enable when attachments are ready');
+
+assert.equal(ids.quoteLink.disabled, false, 'WhatsApp request must be enabled');
 
 ids.quoteLink.listeners.click();
-assert.equal(createdForms.length, 0, 'Must not transmit files without customer consent');
+assert.equal(openedLinks.length, 1, 'Request must immediately open WhatsApp');
+assert.equal(openedLinks[0].target, '_blank');
+assert.match(openedLinks[0].url, /^https:\/\/wa\.me\/27833110552\?text=/);
+const whatsappText = new URL(openedLinks[0].url).searchParams.get('text');
+assert.match(whatsappText, /Pretend Bakery/);
+assert.match(whatsappText, /Cakes, pastries and coffee/);
+assert.match(whatsappText, /Please keep the gold header/);
+assert.equal(createdForms.length, 0, 'Request must not transmit files via email');
 
+const emailButton = ids.shareDownloads.children.find(
+  item => item.textContent === 'EMAIL DEMO & LOGO'
+);
+assert.ok(emailButton, 'Email attachment option must remain available');
+emailButton.listeners.click();
+assert.equal(createdForms.length, 0, 'Email attachments require explicit consent');
 ids.shareConsent.checked = true;
-ids.quoteLink.listeners.click();
+emailButton.listeners.click();
 
-assert.equal(createdForms.length, 1, 'Should create exactly one email submission');
+assert.equal(createdForms.length, 1, 'Email option should create one submission');
 const submission = createdForms[0];
-assert.equal(submission.submitted, true, 'Must submit multipart form');
+assert.equal(submission.submitted, true);
 assert.equal(submission.method, 'POST');
 assert.equal(submission.enctype, 'multipart/form-data');
 assert.equal(submission.action, 'https://formsubmit.co/hello@zionflow.co.za');
-
 const fields = Object.fromEntries(
   submission.children.filter(item => item.type === 'hidden').map(item => [item.name, item.value])
 );
@@ -160,13 +184,14 @@ assert.equal(fields.business_name, 'Pretend Bakery');
 assert.equal(fields.email, 'bakery@example.test');
 assert.match(fields.message, /Cakes, pastries and coffee/);
 assert.match(fields.message, /Please keep the gold header/);
-
 const fileFields = submission.children.filter(item => item.type === 'file');
-assert.equal(fileFields.length, 2, 'Must include logo and demo');
-const logo = fileFields.find(item => item.name === 'logo_attachment');
-const preview = fileFields.find(item => item.name === 'demo_preview');
-assert.equal(logo.files[0].name, 'bakery-logo.png');
-assert.match(preview.files[0].name, /website-demo\.png$/);
-assert.equal(preview.files[0].type, 'image/png');
+assert.equal(fileFields.length, 2);
+assert.equal(fileFields.find(item => item.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
+assert.match(fileFields.find(item => item.name === 'demo_preview').files[0].name, /website-demo\.png$/);
 
-console.log('Approved demo + logo + customer message multipart submission: OK');
+browser.open = () => null;
+ids.quoteLink.listeners.click();
+assert.equal(fallbackLinks.length, 1, 'Blocked popup should use same-tab fallback');
+assert.match(fallbackLinks[0], /^https:\/\/wa\.me\/27833110552\?text=/);
+
+console.log('WhatsApp Request redirect and optional email attachments: OK');

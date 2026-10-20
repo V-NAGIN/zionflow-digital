@@ -1,0 +1,43 @@
+name: Publish ZionFlow App Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website-demo-builder/**"
+      - "tests/demo-check.mjs"
+      - "tests/demo-submission-flow.mjs"
+      - ".github/workflows/publish-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: zionflow-public-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout ZionFlow website
+        uses: actions/checkout@v4
+      - name: Validate website demo before publishing
+        run: |
+          node tests/demo-check.mjs
+          node tests/demo-submission-flow.mjs
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static ZionFlow app website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy ZionFlow app website
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -87,6 +87,11 @@
     .final-cta p{font-size:9px;color:rgba(255,255,255,.7);margin:0 0 12px}
     .final-cta span{display:inline-block;padding:9px 12px;border-radius:8px;background:var(--primary);font-size:9px;font-weight:900}
     .post-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .request-details{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px}
+    .request-consent{display:flex;align-items:flex-start;gap:9px;margin-top:12px;color:#525b65;font-size:12px;line-height:1.5;cursor:pointer}
+    .request-consent input{width:17px;height:17px;flex:0 0 auto;margin:1px 0 0;accent-color:var(--zf)}
+    .request-details textarea{min-height:76px}
+    .request-details .hint{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5}
     .post-actions .btn{width:100%}
     .btn:disabled{opacity:.6;cursor:wait}
     .share-status{display:none;margin-top:13px;background:#f4f8f3;border:1px solid #d7e6d1;color:#315b38;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}
@@ -185,7 +190,7 @@
           </select>
         </div>
       </div>
-      <p class="privacy">Your logo stays in your browser until you choose to share it. ZionFlow receives your files only when you select a recipient and send them.</p>
+      <p class="privacy">Your logo and preview stay in your browser until you request your website. When you send your request, your message, demo preview and uploaded logo will be delivered to ZionFlow by FormSubmit email processing. Do not include confidential documents.</p>
       <div class="actions">
         <button class="btn btn-primary" type="submit">GENERATE MY CUSTOM DEMO</button>
       </div>
@@ -230,6 +235,17 @@
             <span id="ctaButton">Contact Us</span>
           </div>
         </div>
+      </div>
+      <div class="request-details">
+        <div class="field">
+          <label for="customerMessage">Your message to ZionFlow (optional)</label>
+          <textarea id="customerMessage" maxlength="1000" placeholder="Tell us what you like about the demo or what you would change."></textarea>
+        </div>
+        <label class="request-consent" for="shareConsent">
+          <input id="shareConsent" type="checkbox">
+          <span>I agree to send my business details, message, website preview and uploaded logo to ZionFlow using the FormSubmit email service.</span>
+        </label>
+        <small class="hint">Your website request includes your demo image and uploaded logo as email attachments. You can still contact us on WhatsApp afterwards.</small>
       </div>
       <div class="post-actions">
         <button class="btn btn-ghost" id="regenerate" type="button">UPDATE PREVIEW</button>

@@ -87,6 +87,14 @@
     .final-cta p{font-size:9px;color:rgba(255,255,255,.7);margin:0 0 12px}
     .final-cta span{display:inline-block;padding:9px 12px;border-radius:8px;background:var(--primary);font-size:9px;font-weight:900}
     .post-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .post-actions .btn{width:100%}
+    .btn:disabled{opacity:.6;cursor:wait}
+    .share-status{display:none;margin-top:13px;background:#f4f8f3;border:1px solid #d7e6d1;color:#315b38;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}
+    .share-status.show{display:block}
+    .share-status.error{background:#fff5f3;border-color:#f2d4ce;color:#9a3b32}
+    .share-downloads{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .share-downloads:empty{display:none}
+    .share-downloads .btn{font-size:12px}
     @media(max-width:620px){
       .grid{grid-template-columns:1fr}.field.full{grid-column:auto}.navlinks{display:none}.services{grid-template-columns:1fr}.trust{grid-template-columns:1fr}.about{grid-template-columns:1fr}.post-actions{grid-template-columns:1fr}.head,.form{padding-left:16px;padding-right:16px}.demo-wrap{padding:16px}.site-nav{padding:13px}.hero{padding:40px 17px 34px}.section{padding:27px 16px}.final-cta{margin:0 16px 22px}
     }
@@ -158,7 +166,7 @@
             <div class="logo-drop">
               <input id="logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
               <strong>Upload your logo</strong>
-              <span>PNG, JPG, WEBP or SVG. Used only in your browser preview.</span>
+              <span>PNG, JPG, WEBP or SVG, up to 5 MB. Share it only when you're happy with your demo.</span>
             </div>
             <div class="logo-thumb" id="logoThumb">LOGO</div>
           </div>
@@ -177,7 +185,7 @@
           </select>
         </div>
       </div>
-      <p class="privacy">Your logo is previewed locally in your browser. This demo does not upload the logo to ZionFlow or store it online.</p>
+      <p class="privacy">Your logo stays in your browser until you choose to share it. ZionFlow receives your files only when you select a recipient and send them.</p>
       <div class="actions">
         <button class="btn btn-primary" type="submit">GENERATE MY CUSTOM DEMO</button>
       </div>
@@ -225,12 +233,16 @@
       </div>
       <div class="post-actions">
         <button class="btn btn-ghost" id="regenerate" type="button">UPDATE PREVIEW</button>
-        <a class="btn btn-dark" id="quoteLink" target="_blank" rel="noopener">REQUEST THIS WEBSITE</a>
+        <button class="btn btn-dark" id="quoteLink" type="button" aria-describedby="shareStatus" disabled>REQUEST THIS WEBSITE</button>
       </div>
+      <div id="shareStatus" class="share-status" role="status" aria-live="polite"></div>
+      <div id="shareDownloads" class="share-downloads"></div>
     </div>
   </section>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="./share.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -317,8 +329,8 @@
       email ? "Email: " + email : "",
       "Website goal: " + $('goal').options[$('goal').selectedIndex].text
     ].filter(Boolean).join('\n');
-    $('quoteLink').href = 'https://wa.me/27833110552?text=' + encodeURIComponent(summary);
     demoWrap.classList.add('show');
+    document.dispatchEvent(new Event('zf-demo-rendered'));
   }
 
   function escapeHtml(str){

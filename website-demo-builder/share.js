@@ -317,7 +317,7 @@
       // service. The provider may show CAPTCHA or first-time activation.
       form.submit();
       clearDownloads();
-      const demoDownload = downloadLink(snapshot.html, 'DOWNLOAD INTERACTIVE DEMO');
+      downloadLink(snapshot.html, 'DOWNLOAD INTERACTIVE DEMO');
       whatsappLink('FOLLOW UP ON WHATSAPP');
       addDeviceShareOption();
 
@@ -361,7 +361,7 @@
   const originalForm = byId('demoForm');
   originalForm.addEventListener('input', (event) => {
     if (event.target && event.target.id === 'logo') return;
-    if (!snapshot) return;
+    if (!byId('demoWrap').classList.contains('show')) return;
     snapshot = null;
     captureVersion += 1;
     button.disabled = true;

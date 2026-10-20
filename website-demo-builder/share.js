@@ -1,5 +1,5 @@
-/* ZionFlow Custom Demo — local export and native file sharing.
-   No user files are uploaded or transmitted until the visitor chooses a share target. */
+/* ZionFlow Custom Demo — customer-initiated quote submissions with demo/logo attachments.
+   No files leave the browser until the visitor consents and requests the website. */
 (() => {
   'use strict';
 
@@ -18,7 +18,8 @@
   const mimeOk = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']);
   const MAX_LOGO_BYTES = 5 * 1024 * 1024;
   const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
-  const MAX_COMBINED_BYTES = 10 * 1024 * 1024;
+  const MAX_COMBINED_BYTES = 9 * 1024 * 1024; // Leave headroom under the provider's 10 MB multipart limit.
+  const SUBMISSION_ENDPOINT = 'https://formsubmit.co/hello@zionflow.co.za';
 
   function safeName() {
     return (byId('business').value.trim() || 'business')
@@ -57,7 +58,9 @@
       'Email: ' + (byId('email').value.trim() || 'Not provided'),
       'Goal: ' + goal.selectedOptions[0].textContent,
       'Style: ' + style.selectedOptions[0].textContent,
-      'Brand colour: ' + byId('primary').value
+      'Brand colour: ' + byId('primary').value,
+      'Logo uploaded: ' + (logoInput.files && logoInput.files.length ? 'Yes' : 'No'),
+      'Customer message: ' + (byId('customerMessage').value.trim() || 'No additional message')
     ];
     return lines.join('\n').slice(0, 3600);
   }
@@ -196,63 +199,174 @@
     snapshot = null;
     clearDownloads();
     button.disabled = true;
-    notice('Preparing your demo image and logo for sharing…');
+    notice('Preparing your demo preview and logo for your website request…');
 
     try {
       getLogo();
       const [html, logo, png] = await Promise.all([
         standaloneDemo(),
         preparedLogo(),
-        captureScreenshot().catch(() => null)
+        captureScreenshot()
       ]);
       if (version !== captureVersion) return;
 
-      if (png && logo && png.size + logo.size > MAX_COMBINED_BYTES) {
-        throw new Error('Combined logo and preview size is too large. Please upload a smaller logo.');
+      if (png.size + (logo ? logo.size : 0) > MAX_COMBINED_BYTES) {
+        throw new Error('The logo and website demo are too large to send together. Please upload a smaller logo or contact ZionFlow.');
       }
+
       snapshot = {png, logo, html};
       button.disabled = false;
-      notice(png
-        ? 'Your demo and logo are ready. Tap REQUEST THIS WEBSITE, choose WhatsApp, and send them to ZionFlow (+27 83 311 0552).'
-        : 'Your exact demo file is ready. Tap REQUEST THIS WEBSITE for sharing options.');
+      notice('Your website demo is ready. Add an optional message, confirm that we may receive your files, then tap REQUEST THIS WEBSITE.');
     } catch (error) {
       if (version !== captureVersion) return;
-      button.disabled = false;
-      notice(error && error.message || 'We could not prepare the files.', true);
+      button.disabled = true;
+      notice((error && error.message) || 'We could not prepare your demo attachment. Please tap UPDATE PREVIEW to retry.', true);
     }
   }
 
-  async function requestDemo() {
-    if (!snapshot) {
-      notice('Please generate your custom demo first.', true);
+  function appendHidden(form, name, value) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = String(value || '');
+    form.appendChild(input);
+  }
+
+  function appendAttachment(form, fieldName, file) {
+    if (typeof DataTransfer !== 'function') {
+      throw new Error('This browser cannot attach the files automatically. Use another recent browser or send them using the sharing options.');
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.name = fieldName;
+    input.hidden = true;
+
+    const files = new DataTransfer();
+    files.items.add(file);
+    input.files = files.files;
+    if (!input.files || input.files.length !== 1) {
+      throw new Error('Could not attach the demo files. Please retry in another browser.');
+    }
+
+    form.appendChild(input);
+  }
+
+  function requestDemo() {
+    if (!snapshot || !snapshot.png) {
+      notice('Please generate your preview and wait for the demo image to finish preparing.', true);
       return;
     }
 
-    const files = [snapshot.png || snapshot.html, snapshot.logo].filter(Boolean);
-    if (navigator.share && (!navigator.canShare || navigator.canShare({files}))) {
+    const consent = byId('shareConsent');
+    if (!consent || !consent.checked) {
+      notice('Please tick the consent box before sending your logo and website demo to ZionFlow.', true);
+      if (consent) consent.focus();
+      return;
+    }
+
+    if (!byId('demoForm').reportValidity()) {
+      notice('Please check your business details before requesting the website.', true);
+      return;
+    }
+
+    if (!byId('phone').value.trim() && !byId('email').value.trim()) {
+      notice('Please provide a contact phone number or email so ZionFlow can reply to your request.', true);
+      byId('phone').focus();
+      return;
+    }
+
+    const combinedSize = snapshot.png.size + (snapshot.logo ? snapshot.logo.size : 0);
+    if (combinedSize > MAX_COMBINED_BYTES) {
+      notice('Your attachments exceed the email limit. Please upload a smaller logo and update your preview.', true);
+      return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SUBMISSION_ENDPOINT;
+    form.enctype = 'multipart/form-data';
+    form.target = '_blank';
+    form.rel = 'noopener';
+    form.hidden = true;
+
+    appendHidden(form, '_subject', 'ZionFlow website demo request - ' + safeName());
+    appendHidden(form, '_template', 'table');
+    appendHidden(form, '_honey', '');
+    appendHidden(form, 'business_name', byId('business').value.trim());
+    appendHidden(form, 'email', byId('email').value.trim());
+    appendHidden(form, 'phone', byId('phone').value.trim());
+    appendHidden(form, 'message', message());
+    appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
+    appendHidden(form, 'attachments', 'demo_preview and uploaded business logo');
+
+    try {
+      appendAttachment(form, 'demo_preview', snapshot.png);
+      if (snapshot.logo) appendAttachment(form, 'logo_attachment', snapshot.logo);
+    } catch (error) {
+      notice(error.message || 'Could not prepare attachments.', true);
+      clearDownloads();
+      downloadLink(snapshot.png, 'DOWNLOAD MY DEMO');
+      if (snapshot.logo) downloadLink(snapshot.logo, 'DOWNLOAD MY LOGO');
+      whatsappLink('OPEN ZIONFLOW WHATSAPP');
+      return;
+    }
+
+    document.body.appendChild(form);
+    try {
+      // A normal multipart form is used so both uploaded files reach the email
+      // service. The provider may show CAPTCHA or first-time activation.
+      form.submit();
+      clearDownloads();
+      const demoDownload = downloadLink(snapshot.html, 'DOWNLOAD INTERACTIVE DEMO');
+      whatsappLink('FOLLOW UP ON WHATSAPP');
+      addDeviceShareOption();
+
+      notice('Your submission has opened in a new tab. Complete any verification shown there to send the message, website demo image and uploaded logo together to ZionFlow. A WhatsApp follow-up is optional.');
+    } catch (error) {
+      notice('The request could not be opened. Please try again or use the sharing options below.', true);
+      clearDownloads();
+      downloadLink(snapshot.png, 'DOWNLOAD MY DEMO');
+      if (snapshot.logo) downloadLink(snapshot.logo, 'DOWNLOAD MY LOGO');
+      whatsappLink('OPEN ZIONFLOW WHATSAPP');
+    } finally {
+      window.setTimeout(() => form.remove(), 1000);
+    }
+  }
+
+  function addDeviceShareOption() {
+    if (!snapshot || !snapshot.png || typeof navigator.share !== 'function') return;
+    const files = [snapshot.png, snapshot.logo].filter(Boolean);
+    if (navigator.canShare && !navigator.canShare({files})) return;
+
+    const shareButton = document.createElement('button');
+    shareButton.type = 'button';
+    shareButton.className = 'btn btn-ghost';
+    shareButton.textContent = 'SHARE DEMO & LOGO';
+    shareButton.addEventListener('click', async () => {
       try {
         await navigator.share({
           title: 'My ZionFlow custom website demo',
           text: message(),
           files
         });
-        notice('Your share sheet has closed. Please confirm that you selected ZionFlow (+27 83 311 0552) and tapped Send; delivery cannot be confirmed from this page.');
-        return;
-      } catch (err) {
-        if (err && err.name === 'AbortError') {
-          notice('Sharing cancelled. You can tap REQUEST THIS WEBSITE to try again.');
-          return;
-        }
+        notice('The device share sheet has closed. Select the ZionFlow contact and tap Send in your chosen app. File delivery cannot be confirmed from this page.');
+      } catch (error) {
+        if (error && error.name === 'AbortError') return;
+        notice('This device could not share the attachments. Your email submission option is still available.', true);
       }
-    }
-
-    clearDownloads();
-    downloadLink(snapshot.png || snapshot.html, 'DOWNLOAD MY DEMO');
-    if (snapshot.logo) downloadLink(snapshot.logo, 'DOWNLOAD MY LOGO');
-    whatsappLink('OPEN ZIONFLOW WHATSAPP');
-    notice('This browser cannot send attachments directly into WhatsApp. Download the files below, then attach them to your WhatsApp message. Nothing has been sent yet.');
+    });
+    downloads.appendChild(shareButton);
   }
 
+  const originalForm = byId('demoForm');
+  originalForm.addEventListener('input', (event) => {
+    if (event.target && event.target.id === 'logo') return;
+    if (!snapshot) return;
+    snapshot = null;
+    captureVersion += 1;
+    button.disabled = true;
+    notice('Your business details changed. Tap UPDATE PREVIEW to make sure ZionFlow receives the exact demo you approve.');
+  });
   document.addEventListener('zf-demo-rendered', prepare);
   button.addEventListener('click', requestDemo);
 })();

@@ -17,7 +17,7 @@ for (const needle of [
   'id="shareDownloads"',
   'id="shareConsent"',
   'id="customerMessage"',
-  'src="./share.js"',
+  'src="./share.js?v=whatsapp-20261020"',
   "zf-demo-rendered",
   "html2canvas.min.js"
 ]) {

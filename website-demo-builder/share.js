@@ -19,6 +19,7 @@
   const MAX_LOGO_BYTES = 5 * 1024 * 1024;
   const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
   const MAX_COMBINED_BYTES = 10 * 1024 * 1024;
+  const ZIONFLOW_WHATSAPP_NUMBER = '27833110552';
 
   function safeName() {
     return (byId('business').value.trim() || 'business')
@@ -181,9 +182,13 @@
     downloads.appendChild(a);
   }
 
+  function whatsappUrl() {
+    return 'https://wa.me/' + ZIONFLOW_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message());
+  }
+
   function whatsappLink(label) {
     const a = document.createElement('a');
-    a.href = 'https://wa.me/27833110552?text=' + encodeURIComponent(message());
+    a.href = whatsappUrl();
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.className = 'btn btn-dark';
@@ -195,8 +200,8 @@
     const version = ++captureVersion;
     snapshot = null;
     clearDownloads();
-    button.disabled = true;
-    notice('Preparing your demo image and logo for sharing…');
+    button.disabled = false;
+    notice('Your demo is ready to request on WhatsApp. Preparing optional files for you to download or share…');
 
     try {
       getLogo();
@@ -212,17 +217,29 @@
       }
       snapshot = {png, logo, html};
       button.disabled = false;
-      notice(png
-        ? 'Your demo and logo are ready. Tap REQUEST THIS WEBSITE, choose WhatsApp, and send them to ZionFlow (+27 83 311 0552).'
-        : 'Your exact demo file is ready. Tap REQUEST THIS WEBSITE for sharing options.');
+      downloadLink(png || html, 'DOWNLOAD MY DEMO');
+      if (logo) downloadLink(logo, 'DOWNLOAD MY LOGO');
+
+      if (typeof navigator.share === 'function') {
+        const shareButton = document.createElement('button');
+        shareButton.type = 'button';
+        shareButton.className = 'btn btn-ghost';
+        shareButton.textContent = 'SHARE DEMO & LOGO';
+        shareButton.addEventListener('click', shareFiles);
+        downloads.appendChild(shareButton);
+      }
+
+      whatsappLink('OPEN ZIONFLOW WHATSAPP');
+      notice('Tap REQUEST THIS WEBSITE to open ZionFlow WhatsApp with your enquiry filled in. Nothing is sent until you tap Send. Download and attach your demo/logo if you want to share the files.');
     } catch (error) {
       if (version !== captureVersion) return;
       button.disabled = false;
-      notice(error && error.message || 'We could not prepare the files.', true);
+      whatsappLink('OPEN ZIONFLOW WHATSAPP');
+      notice('Your WhatsApp request is ready. Optional demo-file export is unavailable; you can still request the website. ' + (error && error.message || ''), true);
     }
   }
 
-  async function requestDemo() {
+  async function shareFiles() {
     if (!snapshot) {
       notice('Please generate your custom demo first.', true);
       return;
@@ -240,7 +257,7 @@
         return;
       } catch (err) {
         if (err && err.name === 'AbortError') {
-          notice('Sharing cancelled. You can tap REQUEST THIS WEBSITE to try again.');
+          notice('Sharing cancelled. You can tap SHARE DEMO & LOGO to try again.');
           return;
         }
       }
@@ -251,6 +268,28 @@
     if (snapshot.logo) downloadLink(snapshot.logo, 'DOWNLOAD MY LOGO');
     whatsappLink('OPEN ZIONFLOW WHATSAPP');
     notice('This browser cannot send attachments directly into WhatsApp. Download the files below, then attach them to your WhatsApp message. Nothing has been sent yet.');
+  }
+
+  function requestDemo() {
+    if (!byId('demoWrap').classList.contains('show') || !byId('demoForm').reportValidity()) {
+      notice('Please generate your custom demo and check your business details first.', true);
+      return;
+    }
+
+    // A direct, user-initiated navigation. Embedded pages must not try
+    // to display WhatsApp inside their own iframe.
+    const url = whatsappUrl();
+    notice('Opening ZionFlow WhatsApp with your request filled in. Check the message and tap Send in WhatsApp. Demo/logo files must be attached separately.');
+    try {
+      const opened = window.open(url, '_blank');
+      if (opened) {
+        try { opened.opener = null; } catch (_) {}
+      } else {
+        window.location.assign(url);
+      }
+    } catch (_) {
+      window.location.assign(url);
+    }
   }
 
   document.addEventListener('zf-demo-rendered', prepare);

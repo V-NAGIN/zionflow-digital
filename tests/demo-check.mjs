@@ -28,13 +28,16 @@ for (const needle of [
   "navigator.share",
   "website-demo.png",
   "website-demo.html",
-  "wa.me/27833110552",
+  "ZIONFLOW_WHATSAPP_NUMBER = '27833110552'",
+  "window.open(url, '_blank')",
+  "window.location.assign(url)",
   "https://formsubmit.co/hello@zionflow.co.za",
   "multipart/form-data",
   "demo_preview",
   "logo_attachment",
   "DataTransfer",
   "form.submit()",
+  "emailRequestDemo",
   "shareConsent",
   "customerMessage"
 ]) {
@@ -45,4 +48,4 @@ if (!page.includes('type="button" id="quoteLink"') && !page.includes('id="quoteL
   throw new Error("The request button must remain a native button");
 }
 
-console.log("ZionFlow custom demo source, email attachments, consent and WhatsApp sharing integration: OK");
+console.log("ZionFlow custom demo source, WhatsApp redirect and optional attachments: OK");

@@ -28,6 +28,7 @@
   let pendingRequestVersion = -1;
   let submittedVersion = -1;
   let previewStale = false;
+  let captureFailed = false;
 
   function safeName() {
     return (byId('business').value.trim() || 'business').toLowerCase()
@@ -225,6 +226,7 @@
     const version = ++captureVersion;
     snapshot = null;
     previewStale = false;
+    captureFailed = false;
     button.disabled = false;
     button.textContent = 'REQUEST THIS WEBSITE';
     notice('');
@@ -238,6 +240,7 @@
       .catch(() => {
         if (version !== captureVersion) return;
         snapshot = null;
+        captureFailed = true;
         if (pendingRequestVersion === version) {
           notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
         }
@@ -262,6 +265,9 @@
     // Start file archiving without sending visitors to a third-party form.
     // If preview capture is still running, archiveRequest runs after it finishes.
     if (snapshot) archiveRequest(snapshot, version);
+    if (captureFailed) {
+      notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
+    }
 
     // Preserve the original one-click WhatsApp journey and exact established
     // WhatsApp message. The customer reviews and taps Send in WhatsApp.

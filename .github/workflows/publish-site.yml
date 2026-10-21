@@ -6,6 +6,7 @@ on:
     paths:
       - "website-demo-builder/**"
       - "tests/demo-check.mjs"
+      - "tests/demo-variation.mjs"
       - "tests/demo-submission-flow.mjs"
       - ".github/workflows/publish-site.yml"
   workflow_dispatch:
@@ -31,6 +32,7 @@ jobs:
       - name: Validate website demo before publishing
         run: |
           node tests/demo-check.mjs
+          node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

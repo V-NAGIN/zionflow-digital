@@ -5,6 +5,7 @@ on:
     paths:
       - "website-demo-builder/**"
       - "tests/demo-check.mjs"
+      - "tests/demo-variation.mjs"
       - "tests/demo-submission-flow.mjs"
       - ".github/workflows/demo-check.yml"
   pull_request:
@@ -26,6 +27,7 @@ jobs:
       - name: Check demo JavaScript and integration
         run: |
           node tests/demo-check.mjs
+          node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
       - name: Diagnose live site origin and script
         if: github.ref == 'refs/heads/main'

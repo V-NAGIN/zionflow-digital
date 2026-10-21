@@ -62,6 +62,58 @@ try {
   if (!detail.logoVisible || !detail.previewVisible) throw new Error('Logo or preview missing from rendered screen');
   if (detail.downloadControls || detail.extraConsent) throw new Error('Obsolete download or form confirmation controls remain');
 
+  // Browser-test actual client-side composition changes for three distinct combinations.
+  // No live enquiries are sent during this visual test.
+  const variations = [
+    {industry: 'beauty', goal: 'bookings', style: 'modern', business: 'Sample Studio', services: 'Haircut, Styling, Colour'},
+    {industry: 'restaurant', goal: 'sales', style: 'bold', business: 'Sample Kitchen', services: 'Lunch, Dinner, Catering'},
+    {industry: 'construction', goal: 'showcase', style: 'minimal', business: 'Sample Build Co', services: 'Renovations, New Builds, Extensions'},
+  ];
+  const designSignatures = new Set();
+  for (const variant of variations) {
+    await page.locator('#business').fill(variant.business);
+    await page.locator('#services').fill(variant.services);
+    await page.locator('#industry').selectOption(variant.industry);
+    await page.locator('#goal').selectOption(variant.goal);
+    await page.locator('#style').selectOption(variant.style);
+    await page.locator('#regenerate').click();
+    await page.locator('#sitePreview.industry-' + variant.industry + '.goal-' + variant.goal + '.style-' + variant.style).waitFor();
+    await page.locator('#zfGoalSpotlight .zf-feature-intro h3').waitFor();
+
+    const signature = await page.evaluate(() => {
+      const preview = document.querySelector('#sitePreview');
+      const hero = preview.querySelector('.hero');
+      const heading = document.querySelector('#heroTitle');
+      return {
+        classes: preview.className,
+        headline: heading.textContent,
+        background: getComputedStyle(hero).backgroundImage + '|' + getComputedStyle(hero).backgroundColor,
+        feature: document.querySelector('#zfGoalSpotlight .zf-feature-intro h3').textContent,
+        visual: !!document.querySelector('#zfHeroVisual .zf-visual-frame'),
+        cards: document.querySelectorAll('#serviceCards .service').length,
+      };
+    });
+    if (!signature.visual || signature.cards !== 3) throw new Error('Personalized sections missing: ' + JSON.stringify(signature));
+    const fingerprint = [signature.classes, signature.headline, signature.background, signature.feature].join('|');
+    if (designSignatures.has(fingerprint)) throw new Error('Two choices generated the same preview: ' + fingerprint);
+    designSignatures.add(fingerprint);
+    await page.locator('#demoWrap').screenshot({
+      path: 'artifacts/zionflow-demo-' + variant.industry + '-' + variant.goal + '-' + variant.style + '.png',
+      animations: 'disabled',
+      timeout: 20000
+    });
+    console.log('Distinct visual preview verified:', JSON.stringify(signature));
+  }
+  if (designSignatures.size !== variations.length) throw new Error('Demo variations are not distinct');
+
+  // Restore the original fictional test form before checking the unchanged WhatsApp workflow.
+  await page.locator('#business').fill('Example Plumbing Co.');
+  await page.locator('#services').fill('Emergency plumbing, geyser repairs, leak detection');
+  await page.locator('#industry').selectOption('local');
+  await page.locator('#goal').selectOption('enquiries');
+  await page.locator('#style').selectOption('premium');
+  await page.locator('#regenerate').click();
+
   // Verify the public page really opens the prefilled WhatsApp enquiry.
   // Intercept file delivery to avoid sending a fake test lead to ZionFlow.
   const intakeRequests = [];

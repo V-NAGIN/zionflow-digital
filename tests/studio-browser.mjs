@@ -40,11 +40,8 @@ try {
   await page.locator('#buttonText').fill('Request an Appointment');
   await page.locator('#headingFont').selectOption('editorial');
   await page.locator('#imageMood').selectOption('soft');
-  await page.locator('#heroPhoto').setInputFiles({
-    name:'fictional-sample-business-photo.png',
-    mimeType:'image/png',
-    buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==','base64')
-  });
+  // Reuse the repository's real sample image for a meaningful visual QA screenshot.
+  await page.locator('#heroPhoto').setInputFiles('beauty-demo/hero-800.webp');
 
 
   const modern = page.locator('[data-style-choice="modern"]');

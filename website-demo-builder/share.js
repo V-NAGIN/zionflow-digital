@@ -31,7 +31,7 @@
   let snapshotPromise = null;
   let pendingRequestVersion = -1;
   let pendingRequestKind = 'request';
-  let submittedVersion = -1;
+  const submittedFingerprints = new Set();
   let previewStale = false;
   let captureFailed = false;
 
@@ -321,9 +321,13 @@
   // Never claim that a submission reached the mailbox without a backend ack.
   // Even if the screenshot or an image fails, submit all written information.
   function archiveRequest(files, version, kind = 'request') {
-    if (!files || submittedVersion === version) return;
+    // Same click/brief => no duplicate. A revised brief or help->order transition
+    // must still arrive with the latest context and the same case reference.
+    const completeBrief = fullBrief(kind);
+    const fingerprint = version + '|' + kind + '|' + completeBrief;
+    if (!files || submittedFingerprints.has(fingerprint)) return;
 
-    const brief = new File([fullBrief(kind)], safeName() + '-website-brief.txt', {type: 'text/plain'});
+    const brief = new File([completeBrief], safeName() + '-website-brief.txt', {type: 'text/plain'});
     const selected = [];
     let remaining = MAX_COMBINED_BYTES - brief.size;
     let missing = [];
@@ -369,7 +373,7 @@
     appendHidden(form, 'email', byId('email').value.trim());
     appendHidden(form, 'phone', byId('phone').value.trim());
     appendHidden(form, 'message', message(kind));
-    appendHidden(form, 'complete_website_brief', fullBrief(kind));
+    appendHidden(form, 'complete_website_brief', completeBrief);
     appendHidden(form, 'generated_website_preview_text', previewTextSnapshot() || 'Preview text unavailable');
     appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
     appendHidden(form, 'preview_image_file', files.png ? files.png.name : 'Screenshot unavailable');
@@ -389,7 +393,7 @@
         appendHidden(form, 'attachments_not_included', missing.join(', '));
       }
       document.body.appendChild(form);
-      submittedVersion = version;
+      submittedFingerprints.add(fingerprint);
       form.submit();
       window.setTimeout(() => { form.remove(); frame.remove(); }, 120000);
       // The original WhatsApp tab is the customer's definitive action.
@@ -401,7 +405,7 @@
         notice('WhatsApp is ready. Your complete brief and preview were submitted for delivery to ZionFlow. Please tap Send in WhatsApp.');
       }
     } catch (_) {
-      submittedVersion = -1;
+      submittedFingerprints.delete(fingerprint);
       form.remove();
       frame.remove();
       notice('WhatsApp is ready. We could not submit the private website attachments. Please tap Send in WhatsApp so ZionFlow gets your full written brief.', true);

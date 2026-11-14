@@ -291,21 +291,52 @@
     form.appendChild(input);
   }
 
-  // Native multipart upload in a non-visible frame preserves attachment support.
-  // Unlike the old implementation, the visitor never has to visit FormSubmit.
-  // FormSubmit does not provide a delivery receipt here; do not claim delivery.
-  function archiveRequest(files, version) {
-    if (!files || !files.png || submittedVersion === version) return;
-    const essentialSize = files.png.size + (files.logo ? files.logo.size : 0);
-    if (essentialSize > MAX_COMBINED_BYTES) {
-      notice('WhatsApp is ready. The demo image and logo were too large for automatic delivery.', true);
-      return;
-    }
-    const photoForDelivery = files.hero && essentialSize + files.hero.size <= MAX_COMBINED_BYTES
-      ? files.hero : null;
-    if (files.hero && !photoForDelivery) {
-      notice('WhatsApp is ready. Please send your business photo in the chat as it exceeded the attachment limit.', true);
-    }
+  function previewTextSnapshot() {
+    // Captures what the generated page actually says, not just the input form.
+    // This remains useful even if a screenshot cannot be generated.
+    return String(preview.innerText || preview.textContent || '').trim().slice(0, 18000);
+  }
+
+  function fullBrief(kind) {
+    return [
+      'ZIONFLOW WEBSITE CONCEPT / ' + (kind === 'help' ? 'DESIGN HELP' : 'WEBSITE REQUEST'),
+      'REFERENCE: ' + REQUEST_REFERENCE,
+      '',
+      message(kind),
+      '',
+      'FULL GENERATED WEBSITE PREVIEW TEXT',
+      previewTextSnapshot() || 'Rendered preview text unavailable.',
+      '',
+      'The preview screenshot and any original images are separate attachments when available.'
+    ].join('\n');
+  }
+
+  // Native multipart POST preserves attached images on FormSubmit.co.
+  // A hidden iframe cannot provide a verifiable delivery receipt across origins.
+  // Never claim that a submission reached the mailbox without a backend ack.
+  // Even if the screenshot or an image fails, submit all written information.
+  function archiveRequest(files, version, kind = 'request') {
+    if (!files || submittedVersion === version) return;
+
+    const brief = new File([fullBrief(kind)], safeName() + '-website-brief.txt', {type: 'text/plain'});
+    const selected = [];
+    let remaining = MAX_COMBINED_BYTES - brief.size;
+    let missing = [];
+    const optionalFiles = [
+      {field:'demo_preview', file:files.png, name:'website preview'},
+      {field:'logo_attachment', file:files.logo, name:'logo'},
+      {field:'business_photo', file:files.hero, name:'business photo'}
+    ];
+    optionalFiles.forEach(item => {
+      if (!item.file) {
+        if (item.field === 'demo_preview') missing.push(item.name);
+      } else if (item.file.size > 0 && item.file.size <= remaining) {
+        selected.push(item);
+        remaining -= item.file.size;
+      } else {
+        missing.push(item.name + ' (attachment size limit)');
+      }
+    });
 
     const frame = document.createElement('iframe');
     frame.name = 'zf-demo-intake-' + Date.now() + '-' + Math.round(Math.random() * 1e6);
@@ -322,33 +353,53 @@
     form.enctype = 'multipart/form-data';
     form.hidden = true;
 
-    appendHidden(form, '_subject', 'ZionFlow website preview and logo - ' + safeName());
+    appendHidden(form, '_subject', 'ZionFlow ' + (kind === 'help' ? 'design help' : 'website request') +
+      ' [' + REQUEST_REFERENCE + '] - ' + safeName());
     appendHidden(form, '_template', 'table');
     appendHidden(form, '_captcha', 'false');
     appendHidden(form, '_honey', '');
+    appendHidden(form, 'request_reference', REQUEST_REFERENCE);
+    appendHidden(form, 'request_type', kind === 'help' ? 'Help finishing custom demo' : 'Request this website');
     appendHidden(form, 'business_name', byId('business').value.trim());
     appendHidden(form, 'email', byId('email').value.trim());
     appendHidden(form, 'phone', byId('phone').value.trim());
-    appendHidden(form, 'message', message());
+    appendHidden(form, 'message', message(kind));
+    appendHidden(form, 'complete_website_brief', fullBrief(kind));
+    appendHidden(form, 'generated_website_preview_text', previewTextSnapshot() || 'Preview text unavailable');
     appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
-    appendHidden(form, 'preview_image_file', files.png.name);
+    appendHidden(form, 'preview_image_file', files.png ? files.png.name : 'Screenshot unavailable');
     appendHidden(form, 'logo_image_file', files.logo ? files.logo.name : 'No logo uploaded');
     appendHidden(form, 'business_photo_file', files.hero ? files.hero.name : 'No business photo uploaded');
+    appendHidden(form, 'attachments_included', selected.map(item => item.field).join(', ') || 'No image attachments');
+    appendHidden(form, 'attachments_not_included', missing.join(', ') || 'None');
 
     try {
-      appendAttachment(form, 'demo_preview', files.png);
-      if (files.logo) appendAttachment(form, 'logo_attachment', files.logo);
-      if (photoForDelivery) appendAttachment(form, 'business_photo', photoForDelivery);
+      // The text brief is redundant with the email body on purpose: staff can
+      // save or forward the attachment without losing any customer answers.
+      if (typeof DataTransfer === 'function') {
+        appendAttachment(form, 'website_brief', brief);
+        selected.forEach(item => appendAttachment(form, item.field, item.file));
+      } else {
+        missing = ['Browser does not support file attachments'];
+        appendHidden(form, 'attachments_not_included', missing.join(', '));
+      }
       document.body.appendChild(form);
       submittedVersion = version;
       form.submit();
-      // Leave the form/frame alive long enough for the multipart POST to finish.
       window.setTimeout(() => { form.remove(); frame.remove(); }, 120000);
+      // The original WhatsApp tab is the customer's definitive action.
+      // This is an attempted private upload, not a delivery confirmation.
+      if (missing.length) {
+        notice('WhatsApp is ready. ZionFlow has been sent your written brief for processing; some images may need to be sent in the chat: ' +
+          missing.join(', ') + '.', true);
+      } else {
+        notice('WhatsApp is ready. Your complete brief and preview were submitted for delivery to ZionFlow. Please tap Send in WhatsApp.');
+      }
     } catch (_) {
       submittedVersion = -1;
       form.remove();
       frame.remove();
-      notice('WhatsApp is ready, but the demo files could not be delivered automatically. ZionFlow can request them in the chat.', true);
+      notice('WhatsApp is ready. We could not submit the private website attachments. Please tap Send in WhatsApp so ZionFlow gets your full written brief.', true);
     }
   }
 

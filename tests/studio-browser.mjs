@@ -46,11 +46,18 @@ try {
   assert.equal(await page.locator('#demoWrap.show').count(),0,'Asking for help does not require a preview');
 
   await fill(page);
+  await page.evaluate(() => {
+    window.__zfAssistOpened = [];
+    window.open = (url, target) => {
+      window.__zfAssistOpened.push({url,target});
+      return {opener:null};
+    };
+  });
   assert.equal(await page.locator('#zfEssentialsStatus').textContent(),'Ready to preview');
   await page.locator('#zfAssistForm').click();
   const filledHelp = await page.evaluate(() => window.__zfAssistOpened);
-  assert.equal(filledHelp.length,2);
-  const filledText = new URL(filledHelp[1].url).searchParams.get('text');
+  assert.equal(filledHelp.length,1);
+  const filledText = new URL(filledHelp[0].url).searchParams.get('text');
   assert.ok(filledText.includes('Example Beauty Studio'));
   assert.ok(filledText.includes('Hair styling, Skin treatments, Bridal makeup'));
 
@@ -85,8 +92,8 @@ try {
   await page.locator('#demoWrap.show').waitFor();
   await page.locator('#zfAssistPreview').click();
   const previewHelp = await page.evaluate(() => window.__zfAssistOpened);
-  assert.equal(previewHelp.length,3);
-  assert.ok(new URL(previewHelp[2].url).searchParams.get('text').includes('Website preview'));
+  assert.equal(previewHelp.length,2);
+  assert.ok(new URL(previewHelp[1].url).searchParams.get('text').includes('Website preview'));
 
   assert.equal(await page.locator('#heroTitle').textContent(),'Thoughtful beauty for every occasion.');
   assert.equal(await page.locator('#heroCopy').textContent(),'A welcoming studio offering hair, skin and bridal services.');

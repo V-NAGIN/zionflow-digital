@@ -1,0 +1,32 @@
+name: Check Premium Website Studio in Browser
+on:
+  pull_request:
+    paths:
+      - "website-demo-builder/**"
+      - "tests/studio-browser.mjs"
+      - ".github/workflows/studio-browser.yml"
+permissions:
+  contents: read
+jobs:
+  browser-studio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Playwright browser driver
+        run: npm install --no-save --no-package-lock playwright-core@1.56.1
+      - name: Start local website preview and test user interactions
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/zf-studio-server.log 2>&1 &
+          server_pid=$!
+          trap "kill $server_pid || true" EXIT
+          sleep 2
+          node tests/studio-browser.mjs
+      - name: Upload desktop and mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-studio-browser-preview
+          path: artifacts/premium-*.png
+          if-no-files-found: ignore
+          retention-days: 7

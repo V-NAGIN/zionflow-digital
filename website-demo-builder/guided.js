@@ -26,13 +26,10 @@
       toggle.type = 'button';
       toggle.id = 'zfAdvancedToggle';
       toggle.className = 'zf-easy-toggle';
-      toggle.setAttribute('aria-controls','zfAdvancedControls');
       toggle.setAttribute('aria-expanded','false');
       toggle.textContent = 'Show more options +';
       heading.appendChild(toggle);
-      // The advanced controls already live in the original form grid. Grouping uses
-      // the heading + aria-expanded, and keeps the original DOM input identifiers.
-      heading.id = 'zfAdvancedControls';
+      // The advanced controls stay in the original form grid with their input IDs intact.
 
       function setExpanded(open) {
         advancedNodes.forEach(node => {

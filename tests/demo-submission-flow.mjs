@@ -92,6 +92,7 @@ ids.heroTitle = element('heroTitle');
 ids.heroTitle.textContent = 'Great food deserves a great first impression.';
 ids.heroPrimary = element('heroPrimary');
 ids.heroPrimary.textContent = 'Get a Quote';
+ids.sitePreview.innerText = 'Pretend Bakery\nFresh pastries, thoughtfully baked.\nCustom Cakes\nCan I order ahead?';
 
 
 const document = {
@@ -224,10 +225,17 @@ assert.match(fields.message, /Please keep the gold header/);
 assert.ok(fields.source_page.startsWith('https://app.zionflow.co.za'));
 
 const files = submission.children.filter(child => child.type === 'file');
-assert.equal(files.length, 3, 'Background submission must contain demo, logo and business photo');
+assert.equal(files.length, 4, 'Background submission must contain brief, preview, logo and business photo');
 assert.equal(files.find(f => f.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
 assert.ok(files.find(f => f.name === 'demo_preview').files[0].name.endsWith('-website-demo.png'));
 assert.equal(files.find(f => f.name === 'business_photo').files[0].name,'bakery-photo.png');
+assert.equal(files.find(f => f.name === 'website_brief').files[0].type,'text/plain');
+assert.ok(/^ZF-WEB-/.test(fields.request_reference), 'Both channels must have a stable case reference');
+assert.equal(fields.request_type, 'Request this website');
+assert.ok(fields.complete_website_brief.includes('Frequently asked questions: Can I order ahead?'), 'Full customer content must be included');
+assert.ok(fields.complete_website_brief.includes('FULL GENERATED WEBSITE PREVIEW TEXT'), 'Rendered preview must be described');
+assert.ok(fields.generated_website_preview_text.includes('Custom Cakes'), 'Preview text must be saved');
+assert.ok(whatsappText.includes(fields.request_reference), 'Reference must match WhatsApp and private submission');
 
 ids.quoteLink.listeners.click();
 assert.equal(openedLinks.length, 2);
@@ -239,7 +247,16 @@ await new Promise(resolve => setTimeout(resolve, 10));
 assert.equal(ids.quoteLink.disabled, false, 'WhatsApp request must work when optional image preparation fails');
 ids.quoteLink.listeners.click();
 assert.equal(openedLinks.length, 3);
-assert.equal(createdForms.length, 1, 'A broken screenshot must never be replaced by the wrong file');
-assert.match(ids.shareStatus.textContent, /could not automatically save your preview image/i);
+assert.equal(createdForms.length, 2, 'Even with a broken screenshot the complete brief must still be submitted');
+const fallback = createdForms[1];
+const fallbackFields = Object.fromEntries(fallback.children.filter(child => child.type === 'hidden').map(child => [child.name, child.value]));
+assert.equal(fallbackFields.request_reference, fields.request_reference);
+assert.equal(fallbackFields.preview_image_file, 'Screenshot unavailable');
+assert.ok(fallbackFields.complete_website_brief.includes('Pretend Bakery'));
+assert.ok(fallbackFields.generated_website_preview_text.includes('Custom Cakes'));
+const fallbackFiles = fallback.children.filter(child => child.type === 'file');
+assert.ok(!fallbackFiles.some(child => child.name === 'demo_preview'), 'Failed screenshot must not be replaced by a bogus image');
+assert.ok(fallbackFiles.some(child => child.name === 'website_brief'), 'Text attachment must survive capture failure');
+assert.match(ids.shareStatus.textContent, /preview image|missing images/i);
 
 console.log('WhatsApp request, hidden attachment submission, duplicate safety and fallback: OK');

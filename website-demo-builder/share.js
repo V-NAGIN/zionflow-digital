@@ -110,7 +110,8 @@
       '*CUSTOMER NOTES*',
       field('customerMessage') || 'No additional message',
       '',
-      'This is a website concept request, not a completed website order.'
+      kind === 'help' ? 'Please help me plan and finish this website.' :
+        'This is a website concept request, not a completed website order.'
     ];
     return lines.join('\n');
   }
@@ -190,12 +191,13 @@
 
   window.ZionFlowWebsiteAssistance = Object.freeze({open:requestAssistance});
 
-  function canvasFile(canvas) {
+  function canvasFile(canvas, format = 'image/png', quality = undefined) {
     return new Promise((resolve, reject) => {
       canvas.toBlob(blob => {
         if (!blob) return reject(new Error('Could not create the preview image.'));
-        resolve(new File([blob], safeName() + '-website-demo.png', {type: 'image/png'}));
-      }, 'image/png');
+        const ext = format === 'image/jpeg' ? '.jpg' : '.png';
+        resolve(new File([blob], safeName() + '-website-demo' + ext, {type: format}));
+      }, format, quality);
     });
   }
 
@@ -222,7 +224,10 @@
         doc.head.appendChild(css);
       }
     });
-    const file = await canvasFile(canvas);
+    let file = await canvasFile(canvas);
+    // Full-page PNGs can be too large for multipart attachment limits.
+    // Try a smaller JPEG before giving up on the actual preview image.
+    if (file.size > MAX_PREVIEW_BYTES) file = await canvasFile(canvas, 'image/jpeg', 0.82);
     if (file.size < 1 || file.size > MAX_PREVIEW_BYTES) {
       throw new Error('The website preview image is too large to send.');
     }
@@ -390,7 +395,7 @@
       // The original WhatsApp tab is the customer's definitive action.
       // This is an attempted private upload, not a delivery confirmation.
       if (missing.length) {
-        notice('WhatsApp is ready. ZionFlow has been sent your written brief for processing; some images may need to be sent in the chat: ' +
+        notice('WhatsApp is ready. Your written brief has been submitted for delivery. Please tap Send in WhatsApp and share any missing images there: ' +
           missing.join(', ') + '.', true);
       } else {
         notice('WhatsApp is ready. Your complete brief and preview were submitted for delivery to ZionFlow. Please tap Send in WhatsApp.');
@@ -412,18 +417,17 @@
     button.textContent = 'REQUEST THIS WEBSITE';
     notice('');
 
-    snapshotPromise = Promise.all([captureScreenshot(), preparedLogo(), preparedHeroPhoto()])
-      .then(([png, logo, hero]) => {
+    snapshotPromise = Promise.allSettled([captureScreenshot(), preparedLogo(), preparedHeroPhoto()])
+      .then(results => {
         if (version !== captureVersion) return;
-        snapshot = {png, logo, hero};
-        if (pendingRequestVersion === version) archiveRequest(snapshot, version);
-      })
-      .catch(() => {
-        if (version !== captureVersion) return;
-        snapshot = null;
-        captureFailed = true;
+        snapshot = {
+          png: results[0].status === 'fulfilled' ? results[0].value : null,
+          logo: results[1].status === 'fulfilled' ? results[1].value : null,
+          hero: results[2].status === 'fulfilled' ? results[2].value : null
+        };
+        captureFailed = !snapshot.png;
         if (pendingRequestVersion === version) {
-          notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
+          archiveRequest(snapshot, version, pendingRequestKind);
         }
       });
     await snapshotPromise;
@@ -442,12 +446,13 @@
 
     const version = captureVersion;
     pendingRequestVersion = version;
+    pendingRequestKind = 'request';
 
     // Start file archiving without sending visitors to a third-party form.
     // If preview capture is still running, archiveRequest runs after it finishes.
-    if (snapshot) archiveRequest(snapshot, version);
+    if (snapshot) archiveRequest(snapshot, version, 'request');
     if (captureFailed) {
-      notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
+      notice('WhatsApp is ready. We will submit the written brief, but the preview image could not be captured. Please share it in the chat if requested.', true);
     }
 
     // Preserve the original one-click WhatsApp journey and exact established

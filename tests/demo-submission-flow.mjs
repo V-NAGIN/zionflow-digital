@@ -73,6 +73,14 @@ for (const id of ['industry', 'goal', 'style']) {
 }
 ids.logo.files = [new DemoFile(['fake-logo-binary'], 'bakery-logo.png', {type: 'image/png'})];
 
+ids.demoIndustry = element('demoIndustry');
+ids.demoIndustry.textContent = 'Food & Restaurant · Premium & professional';
+ids.heroTitle = element('heroTitle');
+ids.heroTitle.textContent = 'Great food deserves a great first impression.';
+ids.heroPrimary = element('heroPrimary');
+ids.heroPrimary.textContent = 'Get a Quote';
+
+
 const document = {
   body: {appendChild(child) {
     if (child.tagName === 'FORM') createdForms.push(child);
@@ -133,6 +141,27 @@ assert.ok(openedLinks[0].url.startsWith('https://wa.me/27833110552?text='));
 assert.match(decodeURIComponent(openedLinks[0].url), /R499\/month, up-to-3-page website/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Business: Pretend Bakery/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Please keep the gold header/);
+
+const whatsappText = new URL(openedLinks[0].url).searchParams.get('text');
+for (const detail of [
+  '*WEBSITE REQUEST — CUSTOMER DETAILS*',
+  'Business: Pretend Bakery',
+  'Industry: restaurant',
+  'Services: Cakes, pastries and coffee',
+  'Location: Pretoria',
+  'Phone / WhatsApp: 012 555 0101',
+  'Email: bakery@example.test',
+  'Goal: enquiries',
+  'Style: premium',
+  'Brand colour: #c9a227',
+  'Logo uploaded: Yes (bakery-logo.png)',
+  'Preview: Food & Restaurant · Premium & professional',
+  'Website headline: Great food deserves a great first impression.',
+  'Website button: Get a Quote',
+  'Please keep the gold header on my website.'
+]) assert.ok(whatsappText.includes(detail), 'WhatsApp brief is missing: ' + detail);
+assert.ok(!whatsappText.includes('undefined'), 'WhatsApp must not contain undefined details');
+
 assert.equal(fallbackLinks.length, 0);
 
 assert.equal(createdFrames.length, 1, 'Background upload must use a hidden frame');

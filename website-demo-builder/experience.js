@@ -321,7 +321,8 @@
 
     return {
       industry: industry, goal: goal, style: style,
-      category: profile.type, symbol: profile.symbol, photo: profile.photo || '',
+      category: profile.type, symbol: profile.symbol,
+      photo: /^blob:[a-z0-9:/._-]+$/i.test(input.uploadedPhoto || '') ? input.uploadedPhoto : (profile.photo || ''),
       name: name, industryLabel: industryLabel, location: location,
       headline: customerHeadline || profile.headlines[goal], kicker: profile.kicker,
       copy: customerSubheading || (submitted ? goalCopy[goal] : profile.intro),
@@ -402,7 +403,7 @@
     var media = document.getElementById('zfHeroVisual');
     if (!media) return;
     var photo = plan.photo
-      ? '<img class="zf-industry-photo" src="' + plan.photo + '" alt="" loading="eager" decoding="async">'
+      ? '<img class="zf-industry-photo" src="' + escapeHtml(plan.photo) + '" alt="" loading="eager" decoding="async">'
       : '<div class="zf-abstract-art"><span class="zf-orbit zf-orbit-one"></span><span class="zf-orbit zf-orbit-two"></span>' +
         iconSvg(plan.symbol) + '</div>';
     media.innerHTML =
@@ -531,6 +532,29 @@
     drawContact(plan);
   }
 
+  var uploadedPhotoUrl = '';
+  var photoInput = document.getElementById('heroPhoto');
+  if (photoInput) photoInput.addEventListener('change', function () {
+    var file = photoInput.files && photoInput.files[0];
+    var helper = document.getElementById('heroPhotoHelp');
+    if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
+    uploadedPhotoUrl = '';
+    if (file && (!['image/png','image/jpeg','image/webp'].includes(file.type) ||
+        file.size < 1 || file.size > 2 * 1024 * 1024)) {
+      photoInput.value = '';
+      if (helper) helper.textContent = 'Choose a JPG, PNG or WEBP business photo under 2 MB.';
+    } else if (file) {
+      uploadedPhotoUrl = URL.createObjectURL(file);
+      if (helper) helper.textContent = 'Photo selected: ' + file.name +
+        '. It will appear in your preview and be shared privately with ZionFlow if you request the website.';
+    } else if (helper) {
+      helper.textContent = 'Use a real business photo (JPG, PNG or WEBP under 2 MB), or leave blank for an industry image.';
+    }
+    var preview = document.getElementById('demoWrap');
+    var update = document.getElementById('regenerate');
+    if (preview && preview.classList.contains('show') && update) update.click();
+  });
+
   function collectInputs() {
     function val(id) {
       var el = document.getElementById(id);
@@ -544,7 +568,8 @@
       aboutStory: val('aboutStory'), serviceDetails: val('serviceDetails'), whyChoose: val('whyChoose'),
       faqDetails: val('faqDetails'),
       targetAudience: val('targetAudience'), businessHours: val('businessHours'),
-      buttonText: val('buttonText'), headingFont: val('headingFont'), imageMood: val('imageMood')
+      buttonText: val('buttonText'), headingFont: val('headingFont'), imageMood: val('imageMood'),
+      uploadedPhoto: uploadedPhotoUrl
     };
   }
 

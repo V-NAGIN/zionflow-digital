@@ -124,7 +124,8 @@
     ];
     function add(label, value) { if (value) rows.push(label + ': ' + value); }
     add('Business', val('business'));
-    add('Industry', val('industry') === 'other' ? val('otherIndustry') || 'Other' : select('industry'));
+    add('Industry', !val('industry') ? '' : val('industry') === 'other'
+      ? val('otherIndustry') || 'Other' : select('industry'));
     add('What we do', val('services'));
     add('Location', val('location'));
     add('Phone / WhatsApp', val('phone'));

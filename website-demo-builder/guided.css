@@ -1,0 +1,35 @@
+/* Friendly first-time website building — consistent ZionFlow core navy/gold identity. */
+.zf-easy-paths { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:25px; position:relative; z-index:1; }
+.zf-easy-path { display:inline-flex; align-items:center; justify-content:space-between; gap:22px; min-height:45px; border-radius:10px; border:1px solid rgba(255,255,255,.32); padding:11px 15px; color:#fff; background:transparent; text-decoration:none; cursor:pointer; font:inherit; font-size:12px; font-weight:750; }
+.zf-easy-path-main { background:#d1ac39; border-color:#d1ac39; color:#112235; }
+.zf-easy-path-help:hover { background:rgba(255,255,255,.09); }
+.zf-easy-path-main:hover { background:#e4c262; }
+.zf-easy-path:focus-visible,.zf-easy-toggle:focus-visible,.zf-easy-assist-action:focus-visible { outline:2px solid #e4c262; outline-offset:3px; }
+.zf-easy-start { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:0 0 20px; padding-bottom:18px; border-bottom:1px solid #e2e9f0; }
+.zf-easy-start h2 { font-size:24px; line-height:1.22; margin:5px 0 7px; font-weight:750; letter-spacing:-.035em; color:#183048; }
+.zf-easy-start p { max-width:430px; font-size:12px; line-height:1.65; color:#6a798b; margin:0; }
+.zf-easy-step-label { font-size:10px; font-weight:850; letter-spacing:.13em; color:#967221; }
+.zf-easy-status { flex:0 0 auto; background:#f2f5f7; color:#52687d; border:1px solid #dfe6ed; border-radius:20px; padding:7px 11px; font-size:11px; font-weight:770; }
+.zf-easy-status.zf-easy-ready { background:#eef6ef; color:#2c6244; border-color:#cbe4d0; }
+.zf-easy-advanced-heading { flex-wrap:wrap; align-items:center; padding:18px 0; margin-top:7px; }
+.zf-easy-advanced-heading > div { flex:1 1 220px; }
+.zf-easy-toggle { min-height:39px; border:1px solid #b8c9d7; border-radius:9px; padding:9px 13px; background:#fff; color:#203e57; font-weight:800; cursor:pointer; font-size:11px; }
+.zf-easy-toggle:hover { background:#f7fafc; border-color:#c9a227; }
+.zf-easy-advanced-field[hidden] { display:none !important; }
+.zf-easy-assistance,.zf-easy-preview-help { display:flex; gap:14px; align-items:center; background:#f6f8fb; border:1px solid #dce5ed; padding:16px 17px; border-radius:12px; margin-top:20px; }
+.zf-easy-assistance-icon { display:grid; place-items:center; flex:0 0 33px; width:33px; height:33px; border-radius:50%; background:#142e49; color:#e0bb4e; font-weight:900; font-size:18px; }
+.zf-easy-assistance > div,.zf-easy-preview-help > div { flex:1 1 230px; }
+.zf-easy-assistance strong,.zf-easy-preview-help strong { display:block; color:#21384f; font-size:13px; margin-bottom:4px; }
+.zf-easy-assistance p,.zf-easy-preview-help span { display:block; font-size:11px; line-height:1.6; color:#657688; margin:0; }
+.zf-easy-assist-action { display:inline-flex; align-items:center; justify-content:center; gap:12px; border:1px solid #d7c491; background:#fff; color:#283a4b; border-radius:9px; min-height:41px; padding:10px 13px; font:inherit; font-size:11px; font-weight:800; white-space:nowrap; cursor:pointer; }
+.zf-easy-assist-action:hover { background:#fffaf0; border-color:#c9a227; }
+.zf-easy-preview-help { background:#f8fafc; }
+@media(max-width:700px){
+  .zf-easy-start,.zf-easy-assistance,.zf-easy-preview-help { flex-wrap:wrap; align-items:flex-start; }
+  .zf-easy-start h2 { font-size:21px; }
+  .zf-easy-status { margin-top:3px; }
+  .zf-easy-assist-action { width:100%; }
+  .zf-easy-paths { display:grid; grid-template-columns:1fr; }
+  .zf-easy-path { width:100%; }
+}
+@media(prefers-reduced-motion:reduce) { .zf-easy-path,.zf-easy-assist-action,.zf-easy-toggle { scroll-behavior:auto; } }

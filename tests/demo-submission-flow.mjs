@@ -139,6 +139,17 @@ const sandbox = {
 };
 
 vm.runInNewContext(source, sandbox, {filename: 'website-demo-builder/share.js'});
+assert.equal(typeof browser.ZionFlowWebsiteAssistance?.open, 'function', 'Assistance path should exist');
+browser.ZionFlowWebsiteAssistance.open();
+assert.equal(openedLinks.length, 1, 'Help must open the existing ZionFlow WhatsApp number');
+assert.ok(openedLinks[0].url.startsWith('https://wa.me/27833110552?text='));
+const help = new URL(openedLinks[0].url).searchParams.get('text');
+assert.match(help, /help creating a website/i);
+assert.match(help, /Pretend Bakery/);
+assert.match(help, /Cakes, pastries and coffee/);
+assert.ok(!help.includes('R499/month'), 'Help should not create an order enquiry');
+assert.equal(createdForms.length, 0, 'Help must not auto-send the screenshot, logo or photo');
+openedLinks.length = 0;
 assert.equal(typeof listeners.get('zf-demo-rendered'), 'function');
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));

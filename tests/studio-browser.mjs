@@ -24,7 +24,47 @@ try {
   const page = await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1});
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
+  await page.goto(url, {waitUntil:'domcontentloaded',timeout:30000});
+  assert.ok(await page.locator('#zfAssistHeader').isVisible(), 'Help should be available before any input');
+  assert.ok(await page.locator('#customHeadline').isHidden(), 'Advanced fields should be collapsed at first');
+  assert.equal(await page.locator('#zfAdvancedToggle').getAttribute('aria-expanded'),'false');
+  assert.equal(await page.locator('#zfEssentialsStatus').textContent(),'0 of 3 essentials ready');
+
+  await page.evaluate(() => {
+    window.__zfAssistOpened = [];
+    window.open = (url, target) => {
+      window.__zfAssistOpened.push({url,target});
+      return {opener:null};
+    };
+  });
+  await page.locator('#zfAssistHeader').click();
+  const blankHelp = await page.evaluate(() => window.__zfAssistOpened);
+  assert.equal(blankHelp.length,1);
+  assert.ok(blankHelp[0].url.startsWith('https://wa.me/27833110552?text='), 'Help must reach ZionFlow WhatsApp');
+  assert.ok(new URL(blankHelp[0].url).searchParams.get('text').includes('help creating a website'));
+  assert.ok(!new URL(blankHelp[0].url).searchParams.get('text').includes('R499/month'), 'Help should not assume an order');
+  assert.ok(!new URL(blankHelp[0].url).searchParams.get('text').includes('Choose your industry'), 'Help should not treat placeholder as customer input');
+  assert.equal(await page.locator('#demoWrap.show').count(),0,'Asking for help does not require a preview');
+
   await fill(page);
+  await page.evaluate(() => {
+    window.__zfAssistOpened = [];
+    window.open = (url, target) => {
+      window.__zfAssistOpened.push({url,target});
+      return {opener:null};
+    };
+  });
+  assert.equal(await page.locator('#zfEssentialsStatus').textContent(),'Ready to preview');
+  await page.locator('#zfAssistForm').click();
+  const filledHelp = await page.evaluate(() => window.__zfAssistOpened);
+  assert.equal(filledHelp.length,1);
+  const filledText = new URL(filledHelp[0].url).searchParams.get('text');
+  assert.ok(filledText.includes('Example Beauty Studio'));
+  assert.ok(filledText.includes('Hair styling, Skin treatments, Bridal makeup'));
+
+  await page.locator('#zfAdvancedToggle').click();
+  assert.equal(await page.locator('#zfAdvancedToggle').getAttribute('aria-expanded'),'true');
+  assert.ok(await page.locator('#customHeadline').isVisible());
   await page.locator('#customHeadline').fill('Thoughtful beauty for every occasion.');
   await page.locator('#customSubheading').fill('A welcoming studio offering hair, skin and bridal services.');
   await page.locator('#aboutStory').fill('Our independent studio helps people feel confident and cared for.');
@@ -51,6 +91,11 @@ try {
 
   await page.locator('#demoForm button[type="submit"]').click();
   await page.locator('#demoWrap.show').waitFor();
+  await page.locator('#zfAssistPreview').click();
+  const previewHelp = await page.evaluate(() => window.__zfAssistOpened);
+  assert.equal(previewHelp.length,2);
+  assert.ok(new URL(previewHelp[1].url).searchParams.get('text').includes('Website preview'));
+
   assert.equal(await page.locator('#heroTitle').textContent(),'Thoughtful beauty for every occasion.');
   assert.equal(await page.locator('#heroCopy').textContent(),'A welcoming studio offering hair, skin and bridal services.');
   assert.equal(await page.locator('#aboutCopy').textContent(),'Our independent studio helps people feel confident and cared for.');
@@ -99,6 +144,9 @@ try {
   const phoneErrors = [];
   phone.on('pageerror', err => phoneErrors.push(err.message));
   await fill(phone);
+  assert.ok(await phone.locator('#zfAssistHeader').isVisible());
+  assert.ok(await phone.locator('#customHeadline').isHidden());
+  assert.equal(await phone.locator('#zfEssentialsStatus').textContent(), 'Ready to preview');
   await phone.locator('#demoForm button[type="submit"]').click();
   await phone.locator('#demoWrap.show').waitFor();
   await phone.locator('#demoWrap').screenshot({path:'artifacts/premium-small-screen.png',animations:'disabled',timeout:20000});

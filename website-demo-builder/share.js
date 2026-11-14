@@ -112,6 +112,62 @@
     return 'https://wa.me/' + ZIONFLOW_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message());
   }
 
+  // The assistance path is available even before a preview exists or all form
+  // fields are complete. It never triggers the private file submission.
+  function assistanceMessage() {
+    const val = id => (byId(id)?.value || '').trim();
+    const select = id => (byId(id)?.selectedOptions?.[0]?.textContent || '').trim();
+    const rows = [
+      'Hi ZionFlow, I would like help creating a website for my business. Please guide me through the next steps.',
+      '',
+      '*WHAT I HAVE SO FAR*'
+    ];
+    function add(label, value) { if (value) rows.push(label + ': ' + value); }
+    add('Business', val('business'));
+    add('Industry', !val('industry') ? '' : val('industry') === 'other'
+      ? val('otherIndustry') || 'Other' : select('industry'));
+    add('What we do', val('services'));
+    add('Location', val('location'));
+    add('Phone / WhatsApp', val('phone'));
+    add('Email', val('email'));
+    add('Website goal', val('industry') || val('business') ? select('goal') : '');
+    add('Preferred design style', val('industry') || val('business') ? select('style') : '');
+    add('Website headline', val('customHeadline'));
+    add('Website message', val('customSubheading'));
+    add('About the business', val('aboutStory'));
+    add('Service details', val('serviceDetails'));
+    add('Reasons to choose us', val('whyChoose'));
+    add('FAQs', val('faqDetails'));
+    add('Ideal customers', val('targetAudience'));
+    add('Business hours', val('businessHours'));
+    add('Preferred website button', val('buttonText'));
+    add('Customer note', val('customerMessage'));
+    add('Logo chosen', logoInput.files?.[0]?.name || '');
+    add('Business photo chosen', heroPhotoInput?.files?.[0]?.name || '');
+    if (demoWrap.classList.contains('show')) {
+      add('Website preview', (byId('demoIndustry')?.textContent || '').trim());
+    }
+    rows.push('', 'I may need help with the website wording, images or layout.');
+    return rows.join('\n');
+  }
+
+  function requestAssistance() {
+    const url = 'https://wa.me/' + ZIONFLOW_WHATSAPP_NUMBER +
+      '?text=' + encodeURIComponent(assistanceMessage());
+    try {
+      const opened = window.open(url, '_blank');
+      if (opened) {
+        try { opened.opener = null; } catch (_) {}
+      } else {
+        window.location.assign(url);
+      }
+    } catch (_) {
+      window.location.assign(url);
+    }
+  }
+
+  window.ZionFlowWebsiteAssistance = Object.freeze({open:requestAssistance});
+
   function canvasFile(canvas) {
     return new Promise((resolve, reject) => {
       canvas.toBlob(blob => {

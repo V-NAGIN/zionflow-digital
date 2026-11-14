@@ -1,0 +1,153 @@
+/* ZionFlow Premium Studio — progressive visual layer
+   Deliberately scoped outside the client's website design styles except for device-preview emulation. */
+.zf-studio-section {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 5px 0 0;
+  padding: 0 0 13px;
+  border-bottom: 1px solid #e4eaf0;
+}
+.zf-studio-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #c9a227;
+  background: #0c1d33;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.zf-studio-section strong {
+  display: block;
+  color: #17314b;
+  font-size: 15px;
+  font-weight: 760;
+  letter-spacing: -.02em;
+}
+.zf-studio-section small {
+  display: block;
+  color: #6d7c8b;
+  font-size: 11px;
+  line-height: 1.55;
+  margin-top: 3px;
+}
+.demo-toolbar {
+  flex-wrap: wrap;
+}
+.zf-studio-controls {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.zf-studio-control {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #d8e1ea;
+  border-radius: 9px;
+  background: #fff;
+  color: #31465d;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color .16s ease, border-color .16s ease, background-color .16s ease;
+}
+.zf-studio-control:hover {
+  border-color: #9caec0;
+  background: #f8fafc;
+}
+.zf-studio-control[aria-pressed="true"] {
+  color: #fff;
+  background: #0c1d33;
+  border-color: #0c1d33;
+}
+.zf-studio-control:focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 2px;
+}
+.zf-studio-control[hidden] { display: none; }
+.zf-studio-preview-note {
+  margin: 0 0 14px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #68798c;
+}
+.zf-preview-mobile .browser {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+.zf-preview-mobile .site.zf-experience .site-nav {
+  padding: 13px 16px;
+}
+.zf-preview-mobile .site.zf-experience .navlinks { display: none; }
+.zf-preview-mobile .site.zf-experience .zf-hero-layout,
+.zf-preview-mobile .site.zf-experience.style-bold .zf-hero-layout,
+.zf-preview-mobile .site.zf-experience.style-minimal .zf-hero-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.zf-preview-mobile .site.zf-experience .zf-hero-copy,
+.zf-preview-mobile .site.zf-experience.style-minimal .zf-hero-copy {
+  padding: 32px 19px 12px;
+}
+.zf-preview-mobile .site.zf-experience .hero h2,
+.zf-preview-mobile .site.zf-experience.style-bold .hero h2,
+.zf-preview-mobile .site.zf-experience.style-minimal .hero h2 {
+  max-width: 100%;
+  font-size: clamp(27px, 7vw, 39px);
+}
+.zf-preview-mobile .site.zf-experience .zf-hero-visual,
+.zf-preview-mobile .site.zf-experience.style-minimal .zf-hero-visual {
+  padding: 15px 18px 20px;
+}
+.zf-preview-mobile .site.zf-experience .zf-visual-frame { min-height: 210px; max-height: 230px; }
+.zf-preview-mobile .site.zf-experience .zf-industry-photo { min-height: 230px; }
+.zf-preview-mobile .site.zf-experience .zf-goal-spotlight { padding: 24px 17px; }
+.zf-preview-mobile .site.zf-experience .zf-feature-steps,
+.zf-preview-mobile .site.zf-experience .zf-feature-tiles,
+.zf-preview-mobile .site.zf-experience.goal-showcase .zf-feature-tiles {
+  grid-template-columns: minmax(0, 1fr);
+}
+.zf-preview-mobile .site.zf-experience .services,
+.zf-preview-mobile .site.zf-experience.goal-sales .zf-services-section .services {
+  grid-template-columns: minmax(0, 1fr);
+}
+.zf-preview-mobile .site.zf-experience .about { grid-template-columns: minmax(0, 1fr); }
+.zf-preview-mobile .site.zf-experience .section { padding: 27px 16px; }
+.zf-preview-mobile .site.zf-experience .final-cta { margin: 0 16px 22px; }
+.zf-preview-mobile .site.zf-experience.goal-bookings .zf-feature-step {
+  border-right: 0;
+  border-bottom: 1px solid #e2e8ec;
+}
+.builder.zf-preview-expanded { grid-template-columns: minmax(0, 1fr); }
+.builder.zf-preview-expanded .head { grid-column: 1 / -1; grid-row: 1; }
+.builder.zf-preview-expanded .form { display: none; }
+.builder.zf-preview-expanded .demo-wrap.show {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: block;
+  border-right: 0;
+  border-top: 0;
+  padding: 25px;
+}
+.builder.zf-preview-expanded .demo-toolbar { padding: 3px 0; }
+.builder.zf-preview-expanded .browser { max-width: 1140px; margin-inline: auto; }
+.builder.zf-preview-expanded .zf-preview-mobile .browser { max-width: 420px; }
+@media (max-width: 720px) {
+  .zf-studio-section { margin-top: 2px; }
+  .zf-studio-controls { width: 100%; margin-left: 0; }
+  .zf-studio-control { flex: 1 1 auto; }
+  .builder.zf-preview-expanded .demo-wrap.show { padding: 14px; }
+  .zf-preview-mobile .browser { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zf-studio-control { transition: none; }
+}

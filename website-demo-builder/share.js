@@ -22,12 +22,16 @@
   const MAX_LOGO_BYTES = 5 * 1024 * 1024;
   const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
   const MAX_COMBINED_BYTES = 9 * 1024 * 1024;
+  // One reference appears in both the WhatsApp message and the private email.
+  const REQUEST_REFERENCE = 'ZF-WEB-' + Date.now().toString(36).toUpperCase() + '-' +
+    Math.random().toString(36).slice(2, 7).toUpperCase();
 
   let captureVersion = 0;
   let snapshot = null;
   let snapshotPromise = null;
   let pendingRequestVersion = -1;
-  let submittedVersion = -1;
+  let pendingRequestKind = 'request';
+  const submittedFingerprints = new Set();
   let previewStale = false;
   let captureFailed = false;
 
@@ -53,7 +57,7 @@
 
   // WhatsApp click-to-chat accepts prefilled text, not automatic file attachments.
   // Include the full bounded customer brief and the current generated concept metadata.
-  function message() {
+  function message(kind = 'request') {
     const field = id => (byId(id)?.value || '').trim();
     const selected = id => {
       const el = byId(id);
@@ -65,7 +69,10 @@
       : selected('industry');
     const selectedLogo = logoInput.files?.[0];
     const lines = [
-      'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
+      kind === 'help'
+        ? 'Hi ZionFlow, I would like help building the website shown in my demo.'
+        : 'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
+      'Reference: ' + REQUEST_REFERENCE,
       '',
       '*WEBSITE REQUEST — CUSTOMER DETAILS*',
       'Business: ' + field('business'),
@@ -103,7 +110,8 @@
       '*CUSTOMER NOTES*',
       field('customerMessage') || 'No additional message',
       '',
-      'This is a website concept request, not a completed website order.'
+      kind === 'help' ? 'Please help me plan and finish this website.' :
+        'This is a website concept request, not a completed website order.'
     ];
     return lines.join('\n');
   }
@@ -120,6 +128,7 @@
     const rows = [
       'Hi ZionFlow, I would like help creating a website for my business. Please guide me through the next steps.',
       '',
+      'Reference: ' + REQUEST_REFERENCE,
       '*WHAT I HAVE SO FAR*'
     ];
     function add(label, value) { if (value) rows.push(label + ': ' + value); }
@@ -132,6 +141,9 @@
     add('Email', val('email'));
     add('Website goal', val('industry') || val('business') ? select('goal') : '');
     add('Preferred design style', val('industry') || val('business') ? select('style') : '');
+    add('Brand colour', val('primary'));
+    add('Heading typography', val('industry') || val('business') ? select('headingFont') : '');
+    add('Photography style', val('industry') || val('business') ? select('imageMood') : '');
     add('Website headline', val('customHeadline'));
     add('Website message', val('customSubheading'));
     add('About the business', val('aboutStory'));
@@ -146,12 +158,23 @@
     add('Business photo chosen', heroPhotoInput?.files?.[0]?.name || '');
     if (demoWrap.classList.contains('show')) {
       add('Website preview', (byId('demoIndustry')?.textContent || '').trim());
+      add('Generated headline', (byId('heroTitle')?.textContent || '').trim());
+      add('Generated button', (byId('heroPrimary')?.textContent || '').trim());
     }
     rows.push('', 'I may need help with the website wording, images or layout.');
     return rows.join('\n');
   }
 
   function requestAssistance() {
+    if (demoWrap.classList.contains('show')) {
+      // Preview help is a submission too: archive the current design and all
+      // supplied details, rather than sending only a text WhatsApp enquiry.
+      if (previewStale && builderForm.checkValidity?.()) byId('regenerate')?.click();
+      pendingRequestVersion = captureVersion;
+      pendingRequestKind = 'help';
+      if (snapshot) archiveRequest(snapshot, captureVersion, 'help');
+      if (captureFailed) notice('WhatsApp is ready. We will send your full written brief, but the preview image may need to be shared in chat.', true);
+    }
     const url = 'https://wa.me/' + ZIONFLOW_WHATSAPP_NUMBER +
       '?text=' + encodeURIComponent(assistanceMessage());
     try {
@@ -168,12 +191,13 @@
 
   window.ZionFlowWebsiteAssistance = Object.freeze({open:requestAssistance});
 
-  function canvasFile(canvas) {
+  function canvasFile(canvas, format = 'image/png', quality = undefined) {
     return new Promise((resolve, reject) => {
       canvas.toBlob(blob => {
         if (!blob) return reject(new Error('Could not create the preview image.'));
-        resolve(new File([blob], safeName() + '-website-demo.png', {type: 'image/png'}));
-      }, 'image/png');
+        const ext = format === 'image/jpeg' ? '.jpg' : '.png';
+        resolve(new File([blob], safeName() + '-website-demo' + ext, {type: format}));
+      }, format, quality);
     });
   }
 
@@ -200,7 +224,10 @@
         doc.head.appendChild(css);
       }
     });
-    const file = await canvasFile(canvas);
+    let file = await canvasFile(canvas);
+    // Full-page PNGs can be too large for multipart attachment limits.
+    // Try a smaller JPEG before giving up on the actual preview image.
+    if (file.size > MAX_PREVIEW_BYTES) file = await canvasFile(canvas, 'image/jpeg', 0.82);
     if (file.size < 1 || file.size > MAX_PREVIEW_BYTES) {
       throw new Error('The website preview image is too large to send.');
     }
@@ -269,21 +296,56 @@
     form.appendChild(input);
   }
 
-  // Native multipart upload in a non-visible frame preserves attachment support.
-  // Unlike the old implementation, the visitor never has to visit FormSubmit.
-  // FormSubmit does not provide a delivery receipt here; do not claim delivery.
-  function archiveRequest(files, version) {
-    if (!files || !files.png || submittedVersion === version) return;
-    const essentialSize = files.png.size + (files.logo ? files.logo.size : 0);
-    if (essentialSize > MAX_COMBINED_BYTES) {
-      notice('WhatsApp is ready. The demo image and logo were too large for automatic delivery.', true);
-      return;
-    }
-    const photoForDelivery = files.hero && essentialSize + files.hero.size <= MAX_COMBINED_BYTES
-      ? files.hero : null;
-    if (files.hero && !photoForDelivery) {
-      notice('WhatsApp is ready. Please send your business photo in the chat as it exceeded the attachment limit.', true);
-    }
+  function previewTextSnapshot() {
+    // Captures what the generated page actually says, not just the input form.
+    // This remains useful even if a screenshot cannot be generated.
+    return String(preview.innerText || preview.textContent || '').trim().slice(0, 18000);
+  }
+
+  function fullBrief(kind) {
+    return [
+      'ZIONFLOW WEBSITE CONCEPT / ' + (kind === 'help' ? 'DESIGN HELP' : 'WEBSITE REQUEST'),
+      'REFERENCE: ' + REQUEST_REFERENCE,
+      '',
+      message(kind),
+      '',
+      'FULL GENERATED WEBSITE PREVIEW TEXT',
+      previewTextSnapshot() || 'Rendered preview text unavailable.',
+      '',
+      'The preview screenshot and any original images are separate attachments when available.'
+    ].join('\n');
+  }
+
+  // Native multipart POST preserves attached images on FormSubmit.co.
+  // A hidden iframe cannot provide a verifiable delivery receipt across origins.
+  // Never claim that a submission reached the mailbox without a backend ack.
+  // Even if the screenshot or an image fails, submit all written information.
+  function archiveRequest(files, version, kind = 'request') {
+    // Same click/brief => no duplicate. A revised brief or help->order transition
+    // must still arrive with the latest context and the same case reference.
+    const completeBrief = fullBrief(kind);
+    const fingerprint = version + '|' + kind + '|' + completeBrief;
+    if (!files || submittedFingerprints.has(fingerprint)) return;
+
+    const brief = new File([completeBrief], safeName() + '-website-brief.txt', {type: 'text/plain'});
+    const selected = [];
+    let remaining = MAX_COMBINED_BYTES - brief.size;
+    let missing = [];
+    const optionalFiles = [
+      {field:'demo_preview', file:files.png, name:'website preview'},
+      {field:'logo_attachment', file:files.logo, name:'logo'},
+      {field:'business_photo', file:files.hero, name:'business photo'}
+    ];
+    optionalFiles.forEach(item => {
+      if (!item.file) {
+        if (item.field === 'demo_preview') missing.push(item.name);
+      } else if (item.file.size > 0 && item.file.size <= remaining) {
+        selected.push(item);
+        remaining -= item.file.size;
+      } else {
+        missing.push(item.name + ' (attachment size limit)');
+      }
+    });
 
     const frame = document.createElement('iframe');
     frame.name = 'zf-demo-intake-' + Date.now() + '-' + Math.round(Math.random() * 1e6);
@@ -300,33 +362,53 @@
     form.enctype = 'multipart/form-data';
     form.hidden = true;
 
-    appendHidden(form, '_subject', 'ZionFlow website preview and logo - ' + safeName());
+    appendHidden(form, '_subject', 'ZionFlow ' + (kind === 'help' ? 'design help' : 'website request') +
+      ' [' + REQUEST_REFERENCE + '] - ' + safeName());
     appendHidden(form, '_template', 'table');
     appendHidden(form, '_captcha', 'false');
     appendHidden(form, '_honey', '');
+    appendHidden(form, 'request_reference', REQUEST_REFERENCE);
+    appendHidden(form, 'request_type', kind === 'help' ? 'Help finishing custom demo' : 'Request this website');
     appendHidden(form, 'business_name', byId('business').value.trim());
     appendHidden(form, 'email', byId('email').value.trim());
     appendHidden(form, 'phone', byId('phone').value.trim());
-    appendHidden(form, 'message', message());
+    appendHidden(form, 'message', message(kind));
+    appendHidden(form, 'complete_website_brief', completeBrief);
+    appendHidden(form, 'generated_website_preview_text', previewTextSnapshot() || 'Preview text unavailable');
     appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
-    appendHidden(form, 'preview_image_file', files.png.name);
+    appendHidden(form, 'preview_image_file', files.png ? files.png.name : 'Screenshot unavailable');
     appendHidden(form, 'logo_image_file', files.logo ? files.logo.name : 'No logo uploaded');
     appendHidden(form, 'business_photo_file', files.hero ? files.hero.name : 'No business photo uploaded');
+    appendHidden(form, 'attachments_included', selected.map(item => item.field).join(', ') || 'No image attachments');
+    appendHidden(form, 'attachments_not_included', missing.join(', ') || 'None');
 
     try {
-      appendAttachment(form, 'demo_preview', files.png);
-      if (files.logo) appendAttachment(form, 'logo_attachment', files.logo);
-      if (photoForDelivery) appendAttachment(form, 'business_photo', photoForDelivery);
+      // The text brief is redundant with the email body on purpose: staff can
+      // save or forward the attachment without losing any customer answers.
+      if (typeof DataTransfer === 'function') {
+        appendAttachment(form, 'website_brief', brief);
+        selected.forEach(item => appendAttachment(form, item.field, item.file));
+      } else {
+        missing = ['Browser does not support file attachments'];
+        appendHidden(form, 'attachments_not_included', missing.join(', '));
+      }
       document.body.appendChild(form);
-      submittedVersion = version;
+      submittedFingerprints.add(fingerprint);
       form.submit();
-      // Leave the form/frame alive long enough for the multipart POST to finish.
       window.setTimeout(() => { form.remove(); frame.remove(); }, 120000);
+      // The original WhatsApp tab is the customer's definitive action.
+      // This is an attempted private upload, not a delivery confirmation.
+      if (missing.length) {
+        notice('WhatsApp is ready. Your written brief has been submitted for delivery. Please tap Send in WhatsApp and share any missing images there: ' +
+          missing.join(', ') + '.', true);
+      } else {
+        notice('WhatsApp is ready. Your complete brief and preview were submitted for delivery to ZionFlow. Please tap Send in WhatsApp.');
+      }
     } catch (_) {
-      submittedVersion = -1;
+      submittedFingerprints.delete(fingerprint);
       form.remove();
       frame.remove();
-      notice('WhatsApp is ready, but the demo files could not be delivered automatically. ZionFlow can request them in the chat.', true);
+      notice('WhatsApp is ready. We could not submit the private website attachments. Please tap Send in WhatsApp so ZionFlow gets your full written brief.', true);
     }
   }
 
@@ -339,18 +421,17 @@
     button.textContent = 'REQUEST THIS WEBSITE';
     notice('');
 
-    snapshotPromise = Promise.all([captureScreenshot(), preparedLogo(), preparedHeroPhoto()])
-      .then(([png, logo, hero]) => {
+    snapshotPromise = Promise.allSettled([captureScreenshot(), preparedLogo(), preparedHeroPhoto()])
+      .then(results => {
         if (version !== captureVersion) return;
-        snapshot = {png, logo, hero};
-        if (pendingRequestVersion === version) archiveRequest(snapshot, version);
-      })
-      .catch(() => {
-        if (version !== captureVersion) return;
-        snapshot = null;
-        captureFailed = true;
+        snapshot = {
+          png: results[0].status === 'fulfilled' ? results[0].value : null,
+          logo: results[1].status === 'fulfilled' ? results[1].value : null,
+          hero: results[2].status === 'fulfilled' ? results[2].value : null
+        };
+        captureFailed = !snapshot.png;
         if (pendingRequestVersion === version) {
-          notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
+          archiveRequest(snapshot, version, pendingRequestKind);
         }
       });
     await snapshotPromise;
@@ -369,12 +450,13 @@
 
     const version = captureVersion;
     pendingRequestVersion = version;
+    pendingRequestKind = 'request';
 
     // Start file archiving without sending visitors to a third-party form.
     // If preview capture is still running, archiveRequest runs after it finishes.
-    if (snapshot) archiveRequest(snapshot, version);
+    if (snapshot) archiveRequest(snapshot, version, 'request');
     if (captureFailed) {
-      notice('WhatsApp is ready. We could not automatically save your preview image; ZionFlow can request it in the chat.', true);
+      notice('WhatsApp is ready. We will submit the written brief, but the preview image could not be captured. Please share it in the chat if requested.', true);
     }
 
     // Preserve the original one-click WhatsApp journey and exact established

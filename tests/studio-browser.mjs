@@ -24,6 +24,18 @@ try {
   const page = await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1});
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
+  // Intercept tests: never deliver fictional customer data to the real mailbox.
+  const interceptedIntakes = [];
+  await page.route('https://formsubmit.co/**', async route => {
+    const req = route.request();
+    if (req.method() === 'POST') {
+      interceptedIntakes.push({
+        url: req.url(),
+        body: req.postDataBuffer()?.toString('utf8') || ''
+      });
+    }
+    await route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Test intercepted</title>'});
+  });
   await page.goto(url, {waitUntil:'domcontentloaded',timeout:30000});
   assert.ok(await page.locator('#zfAssistHeader').isVisible(), 'Help should be available before any input');
   assert.ok(await page.locator('#customHeadline').isHidden(), 'Advanced fields should be collapsed at first');
@@ -92,6 +104,21 @@ try {
   await page.locator('#demoForm button[type="submit"]').click();
   await page.locator('#demoWrap.show').waitFor();
   await page.locator('#zfAssistPreview').click();
+  for (let tries = 0; tries < 40 && interceptedIntakes.length === 0; tries++) {
+    await page.waitForTimeout(150);
+  }
+  assert.equal(interceptedIntakes.length, 1, 'Asking for help after preview should privately archive one complete demo');
+  const archiveBody = interceptedIntakes[0].body;
+  for (const required of [
+    'name="request_reference"',
+    'name="complete_website_brief"',
+    'name="generated_website_preview_text"',
+    'name="website_brief"',
+    'name="demo_preview"',
+    'name="business_photo"',
+    'Thoughtful beauty for every occasion.',
+    'Help finishing custom demo'
+  ]) assert.ok(archiveBody.includes(required), 'Private preview archive missing: ' + required);
   const previewHelp = await page.evaluate(() => window.__zfAssistOpened);
   assert.equal(previewHelp.length,2);
   assert.ok(new URL(previewHelp[1].url).searchParams.get('text').includes('Website preview'));
@@ -136,6 +163,19 @@ try {
   await page.locator('[data-style-choice="minimal"]').click();
   await page.locator('#regenerate').click();
   await page.locator('#sitePreview.style-minimal').waitFor();
+  await page.locator('#quoteLink').click();
+  for (let tries = 0; tries < 40 && interceptedIntakes.length < 2; tries++) {
+    await page.waitForTimeout(150);
+  }
+  assert.equal(interceptedIntakes.length,2,'Request after design changes should archive the latest preview');
+  const finalUpload = interceptedIntakes[1].body;
+  assert.ok(finalUpload.includes('Request this website'),'Final archive must be typed as a website request');
+  assert.ok(finalUpload.includes('name="website_brief"'),'Final archive should attach its whole written brief');
+  assert.ok(finalUpload.includes('name="demo_preview"'),'Final archive should attach the refreshed preview screenshot');
+  const finalChat = await page.evaluate(() => window.__zfAssistOpened.at(-1)?.url || '');
+  const finalText = new URL(finalChat).searchParams.get('text') || '';
+  assert.ok(finalText.includes('R499/month, up-to-3-page website'),'Normal request must retain established offer');
+  assert.ok(finalText.includes('A studio that feels like you.'),'Normal request must include latest customer copy');
   if(errors.length) throw new Error('Browser JavaScript errors: '+errors.join('; '));
   console.log('Desktop / mobile toggle / expanded edit / style choice: OK', mobile);
   await page.close();

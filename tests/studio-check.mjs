@@ -30,7 +30,7 @@ assert.ok(css.includes('.zf-preview-mobile .site.zf-experience .zf-hero-layout')
 assert.ok(css.includes('.zf-preview-mobile .site.zf-experience .services'), 'Mobile service cards must reflow');
 assert.ok(css.includes('prefers-reduced-motion'), 'Respect reduced-motion settings');
 assert.ok(sharing.includes("ZIONFLOW_WHATSAPP_NUMBER = '27833110552'"), 'WhatsApp customer route must remain unchanged');
-assert.ok(sharing.includes("appendAttachment(form, 'logo_attachment', files.logo)"), 'Logo intake must remain unchanged');
-assert.ok(sharing.includes("appendAttachment(form, 'demo_preview', files.png)"), 'Preview intake must remain unchanged');
+assert.ok(sharing.includes("appendAttachment(form, item.field, item.file)"), 'Private asset intake must remain unchanged');
+assert.ok(sharing.includes("{field:'demo_preview', file:files.png"), 'Preview intake must remain unchanged');
 
 console.log('Premium studio UI wiring, 4 style cards, mobile preview and unchanged request route: OK');

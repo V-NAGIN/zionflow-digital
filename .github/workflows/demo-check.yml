@@ -31,6 +31,23 @@ jobs:
           node tests/studio-check.mjs
           node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
+      - name: Install browser driver for design QA
+        run: npm install --no-save --no-package-lock playwright-core@1.56.1
+      - name: Check premium studio in real desktop and mobile browser
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/zf-studio.log 2>&1 &
+          web_pid=$!
+          trap "kill $web_pid || true" EXIT
+          sleep 2
+          node tests/studio-browser.mjs
+      - name: Upload premium browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-studio-screenshots
+          path: artifacts/premium-*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Diagnose live site origin and script
         if: github.ref == 'refs/heads/main'
         run: |

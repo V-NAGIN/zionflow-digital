@@ -52,6 +52,11 @@ assert.equal(tailored.email,'hello@example.test');
 assert.equal(tailored.businessHours,'Weekdays, by appointment');
 assert.equal(tailored.headingFont,'editorial');
 assert.equal(tailored.imageMood,'rich');
+const customPhoto = plan({industry:'local', uploadedPhoto:'blob:https://app.zionflow.co.za/12345-demo'});
+assert.equal(customPhoto.photo,'blob:https://app.zionflow.co.za/12345-demo');
+const rejectedPhoto = plan({industry:'local', uploadedPhoto:'javascript:alert(1)'});
+assert.notEqual(rejectedPhoto.photo,'javascript:alert(1)');
+
 
 const fallback = plan({
   industry:'other', goal:'sales', style:'minimal',

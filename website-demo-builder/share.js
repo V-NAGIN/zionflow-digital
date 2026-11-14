@@ -50,28 +50,47 @@
     return file;
   }
 
+  // WhatsApp click-to-chat accepts prefilled text, not automatic file attachments.
+  // Include the full bounded customer brief and the current generated concept metadata.
   function message() {
-    const industrySelect = byId('industry');
-    const industryValue = industrySelect.value === 'other'
-      ? (byId('otherIndustry').value.trim() || 'Other')
-      : (industrySelect.selectedOptions[0] && industrySelect.selectedOptions[0].textContent) || 'Not specified';
-    const goal = byId('goal');
-    const style = byId('style');
+    const field = id => (byId(id)?.value || '').trim();
+    const selected = id => {
+      const el = byId(id);
+      return (el?.selectedOptions?.[0]?.textContent || el?.value || 'Not specified').trim();
+    };
+    const shown = id => (byId(id)?.textContent || '').trim();
+    const industryValue = field('industry') === 'other'
+      ? (field('otherIndustry') || 'Other')
+      : selected('industry');
+    const selectedLogo = logoInput.files?.[0];
     const lines = [
       'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
-      'Business: ' + byId('business').value.trim(),
+      '',
+      '*WEBSITE REQUEST — CUSTOMER DETAILS*',
+      'Business: ' + field('business'),
       'Industry: ' + industryValue,
-      'Services: ' + byId('services').value.trim(),
-      'Location: ' + (byId('location').value.trim() || 'Not provided'),
-      'Phone: ' + (byId('phone').value.trim() || 'Not provided'),
-      'Email: ' + (byId('email').value.trim() || 'Not provided'),
-      'Goal: ' + goal.selectedOptions[0].textContent,
-      'Style: ' + style.selectedOptions[0].textContent,
-      'Brand colour: ' + byId('primary').value,
-      'Logo uploaded: ' + (logoInput.files && logoInput.files.length ? 'Yes' : 'No'),
-      'Customer message: ' + (byId('customerMessage').value.trim() || 'No additional message')
+      'Services: ' + field('services'),
+      'Location: ' + (field('location') || 'Not provided'),
+      'Phone / WhatsApp: ' + (field('phone') || 'Not provided'),
+      'Email: ' + (field('email') || 'Not provided'),
+      '',
+      '*DESIGN CHOICES*',
+      'Goal: ' + selected('goal'),
+      'Style: ' + selected('style'),
+      'Brand colour: ' + (field('primary') || 'Not specified'),
+      'Logo uploaded: ' + (selectedLogo ? 'Yes (' + selectedLogo.name + ')' : 'No'),
+      '',
+      '*PREVIEW CREATED*',
+      'Preview: ' + (shown('demoIndustry') || 'Custom website concept'),
+      'Website headline: ' + (shown('heroTitle') || 'Not available'),
+      'Website button: ' + (shown('heroPrimary') || 'Not available'),
+      '',
+      '*CUSTOMER NOTES*',
+      field('customerMessage') || 'No additional message',
+      '',
+      'This is a website concept request, not a completed website order.'
     ];
-    return lines.join('\n').slice(0, 3600);
+    return lines.join('\n');
   }
 
   function whatsappUrl() {

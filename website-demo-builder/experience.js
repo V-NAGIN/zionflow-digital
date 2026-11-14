@@ -533,7 +533,7 @@
   }
 
   var uploadedPhotoUrl = '';
-  var photoInput = document.getElementById('heroPhoto');
+  var photoInput = typeof document.getElementById === 'function' ? document.getElementById('heroPhoto') : null;
   if (photoInput) photoInput.addEventListener('change', function () {
     var file = photoInput.files && photoInput.files[0];
     var helper = document.getElementById('heroPhotoHelp');

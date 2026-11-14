@@ -8,6 +8,7 @@ on:
       - "tests/demo-variation.mjs"
       - "tests/demo-submission-flow.mjs"
       - "tests/studio-check.mjs"
+      - "tests/personalization-check.mjs"
       - ".github/workflows/demo-check.yml"
   pull_request:
     paths:
@@ -29,6 +30,7 @@ jobs:
         run: |
           node tests/demo-check.mjs
           node tests/studio-check.mjs
+          node tests/personalization-check.mjs
           node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
       - name: Install browser driver for design QA

@@ -22,7 +22,8 @@ for (const feature of [
   "document.getElementById('business')"
 ]) assert.ok(js.includes(feature), 'Studio feature missing: ' + feature);
 
-for (const style of ['premium','modern','bold','minimal']) {
+assert.ok(css.includes('.zf-style-swatch {'), 'Default premium style card must be defined');
+for (const style of ['modern','bold','minimal']) {
   assert.ok(css.includes('.zf-style-swatch-' + style), 'Template card style missing: ' + style);
 }
 assert.ok(css.includes('.zf-preview-mobile .site.zf-experience .zf-hero-layout'), 'Mobile hero must reflow on desktop');

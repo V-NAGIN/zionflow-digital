@@ -290,6 +290,13 @@
       return clean(v, 94);
     }).filter(Boolean).slice(0,3);
     var trustPoints = profile.trust.map(function (text, i) { return customPoints[i] || text; });
+    var faqs = clean(input.faqDetails, 650).split(/\r?\n/).map(function (line) {
+      var separator = line.indexOf('|');
+      return separator >= 0 ? {
+        question: clean(line.slice(0, separator), 120),
+        answer: clean(line.slice(separator + 1), 240)
+      } : null;
+    }).filter(function (item) { return item && item.question && item.answer; }).slice(0, 3);
     var audience = clean(input.targetAudience, 120);
     var firstTwo = services.slice(0, 2).join(' and ');
     var goalCopy = {
@@ -320,7 +327,7 @@
       copy: customerSubheading || (submitted ? goalCopy[goal] : profile.intro),
       primaryAction: customAction, secondaryAction: conversion.secondary,
       nav: conversion.nav, trust: trustPoints, services: services,
-      serviceDescriptions: serviceDescriptions, audience: audience,
+      serviceDescriptions: serviceDescriptions, audience: audience, faqs: faqs,
       businessHours: clean(input.businessHours,120),
       email: clean(input.email, 254),
       headingFont: headingFont, imageMood: imageMood,
@@ -374,6 +381,13 @@
     }
     var serviceSection = site.querySelector('.section:not(.about)');
     if (serviceSection) serviceSection.classList.add('zf-services-section');
+    if (!site.querySelector('#zfFaqSection')) {
+      var faqSection = document.createElement('section');
+      faqSection.id = 'zfFaqSection';
+      faqSection.className = 'zf-faq-section';
+      faqSection.setAttribute('aria-label', 'Frequently asked questions');
+      site.appendChild(faqSection);
+    }
     if (!site.querySelector('#zfContactSection')) {
       var contact = document.createElement('section');
       contact.id = 'zfContactSection';
@@ -430,6 +444,18 @@
         '<strong>' + escapeHtml(service) + '</strong><p>' +
         escapeHtml(plan.serviceDescriptions[i] || plan.serviceDetail) + '</p></div>';
     }).join('');
+  }
+
+  function drawFaq(plan) {
+    var target = document.getElementById('zfFaqSection');
+    if (!target) return;
+    target.hidden = plan.faqs.length === 0;
+    if (!plan.faqs.length) { target.innerHTML = ''; return; }
+    target.innerHTML = '<small>HELPFUL ANSWERS</small><h3>Questions, answered.</h3><div class="zf-faq-list">' +
+      plan.faqs.map(function (item) {
+        return '<article class="zf-faq-item"><h4>' + escapeHtml(item.question) +
+          '</h4><p>' + escapeHtml(item.answer) + '</p></article>';
+      }).join('') + '</div>';
   }
 
   function drawContact(plan) {
@@ -501,6 +527,7 @@
     drawVisual(plan);
     drawSpotlight(plan);
     drawServices(plan);
+    drawFaq(plan);
     drawContact(plan);
   }
 
@@ -515,6 +542,7 @@
       otherIndustry: val('otherIndustry'), phone: val('phone'), email: val('email'), primary: val('primary'),
       customHeadline: val('customHeadline'), customSubheading: val('customSubheading'),
       aboutStory: val('aboutStory'), serviceDetails: val('serviceDetails'), whyChoose: val('whyChoose'),
+      faqDetails: val('faqDetails'),
       targetAudience: val('targetAudience'), businessHours: val('businessHours'),
       buttonText: val('buttonText'), headingFont: val('headingFont'), imageMood: val('imageMood')
     };
@@ -536,7 +564,7 @@
   // Live visual edits are local-only. Screenshot preparation is refreshed by the
   // unchanged request handler when the customer chooses Request This Website.
   var liveEditFields = [
-    'customHeadline','customSubheading','aboutStory','serviceDetails','whyChoose',
+    'customHeadline','customSubheading','aboutStory','serviceDetails','whyChoose','faqDetails',
     'targetAudience','businessHours','buttonText','headingFont','imageMood'
   ];
   document.addEventListener('input', function (event) {

@@ -570,3 +570,70 @@
 @media(prefers-reduced-motion:reduce) {
   .site.zf-experience * { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+
+/* ZionFlow premium builder studio — non-production visual redesign.
+   Keep the existing preview renderer, request workflow, image capture and WhatsApp flow unchanged. */
+:root{--studio-navy:#0c1d33;--studio-navy-hover:#183550;--studio-gold:#c9a227;--studio-ink:#172a40;--studio-border:#dfe7ee}
+body{color:var(--studio-ink)}
+.wrap{max-width:1180px;padding:20px}
+.builder{background:#fff;border:1px solid #dfe7ef;border-radius:24px;box-shadow:0 16px 46px rgba(12,29,51,.075)}
+.head{position:relative;overflow:hidden;padding:34px 38px 30px;background:var(--studio-navy);color:#fff}
+.head:after{content:"";position:absolute;top:37px;right:38px;width:62px;height:2px;background:var(--studio-gold)}
+.eyebrow{color:#e5ca74;font-size:11px;letter-spacing:.13em}
+.eyebrow:before{background:var(--studio-gold);box-shadow:none}
+.head h1{max-width:760px;margin:14px 0;font-size:clamp(30px,3.3vw,47px);font-weight:760;line-height:1.09;letter-spacing:-.045em;color:#fff}
+.intro{max-width:700px;font-size:14px;line-height:1.7;color:#c9d6e4}
+.form{padding:30px 38px 34px;background:#fff}
+.grid{gap:20px 18px}
+.field{gap:9px}
+.field label{font-size:13px;font-weight:700;color:#22354a}
+.field input:not([type=color]):not([type=file]),.field select,.field textarea{min-height:48px;padding:13px 14px;border:1px solid #d8e0e9;border-radius:10px;background:#fff;font-size:14px;line-height:1.5;color:var(--studio-ink);box-shadow:none;transition:border-color .16s ease,box-shadow .16s ease}
+.field textarea{min-height:100px}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible,.btn:focus-visible{outline:2px solid var(--studio-gold);outline-offset:2px}
+.logo-drop{border-radius:11px;padding:16px;background:#f7f9fb;border:1px dashed #aebed0;transition:border-color .16s ease,background .16s ease}
+.logo-drop:hover{border-color:var(--studio-gold);background:#fffdf8}
+.logo-drop strong{font-size:13px;color:#233650}
+.logo-drop span{font-size:11px;line-height:1.5}
+.logo-thumb{width:68px;height:68px;border-radius:12px}
+input[type=color]{border-color:#d8e0e9;border-radius:9px}
+.privacy{margin-top:22px;color:#68788a;font-size:12px;line-height:1.65}
+.actions{margin-top:24px}
+.btn{border-radius:10px;padding:16px 18px;font-size:13px;letter-spacing:.02em;font-weight:800;transition:background-color .18s ease,border-color .18s ease,transform .18s ease}
+.btn-primary,.btn-dark{background:var(--studio-navy);color:#fff}
+.btn-primary:hover,.btn-dark:hover{background:var(--studio-navy-hover)}
+.btn-ghost:hover{border-color:var(--studio-gold)}
+.btn:active{transform:translateY(1px)}
+.demo-wrap{background:#f6f8fb;padding:28px;border-top-color:var(--studio-border)}
+.demo-toolbar{gap:12px;margin-bottom:15px}
+.demo-toolbar strong{font-size:15px;color:#1b3047}
+.demo-toolbar span{font-size:12px}
+.browser{border-radius:14px;border-color:#d6e0eb;box-shadow:0 15px 40px rgba(12,29,51,.09)}
+.browserbar{height:38px;background:#eef2f6}
+.address{font-size:10px}
+.request-details{margin-top:18px;border-radius:13px;border-color:#dce5ec;box-shadow:0 8px 24px rgba(12,29,51,.03)}
+.request-details .hint{line-height:1.55}
+.share-status{border-radius:10px}
+@media(min-width:1040px){
+ .wrap{max-width:1460px;padding:28px}
+ .builder:not(:has(.demo-wrap.show)) .form{max-width:980px;margin:0 auto}
+ .builder:has(.demo-wrap.show){display:grid;grid-template-columns:minmax(375px,.43fr) minmax(575px,.57fr);align-items:start}
+ .builder:has(.demo-wrap.show) .head{grid-column:1/-1}
+ .builder:has(.demo-wrap.show) .form{grid-column:1;grid-row:2;padding:28px 27px 34px;border-right:1px solid var(--studio-border)}
+ .builder:has(.demo-wrap.show) .demo-wrap{grid-column:2;grid-row:2;display:block;min-width:0;padding:24px;border-top:0}
+ .builder:has(.demo-wrap.show) .form .grid{grid-template-columns:1fr 1fr;gap:16px 13px}
+}
+@media(max-width:720px){
+ .wrap{padding:8px}
+ .builder{border-radius:17px}
+ .head{padding:28px 20px 25px}
+ .head:after{top:25px;right:21px;width:38px}
+ .head h1{font-size:clamp(27px,7vw,38px);max-width:95%}
+ .form{padding:22px 20px 26px}
+ .grid{gap:16px}
+ .demo-wrap{padding:16px}
+ .post-actions{gap:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .btn,.logo-drop,.field input,.field select,.field textarea{transition:none!important}
+}

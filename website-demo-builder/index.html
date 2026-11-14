@@ -120,7 +120,7 @@
       <div class="grid">
         <div class="field">
           <label for="business">Business name</label>
-          <input id="business" required placeholder="e.g. Mokoena Plumbing">
+          <input id="business" required maxlength="100" placeholder="e.g. Mokoena Plumbing">
         </div>
         <div class="field">
           <label for="industry">Industry</label>
@@ -140,15 +140,15 @@
         </div>
         <div class="field full" id="otherWrap" style="display:none">
           <label for="otherIndustry">Your industry</label>
-          <input id="otherIndustry" placeholder="Tell us what industry you are in">
+          <input id="otherIndustry" maxlength="100" placeholder="Tell us what industry you are in">
         </div>
         <div class="field full">
           <label for="services">What does your business do?</label>
-          <textarea id="services" required placeholder="Example: Emergency plumbing, geyser repairs, blocked drains, leak detection"></textarea>
+          <textarea id="services" required maxlength="700" placeholder="Example: Emergency plumbing, geyser repairs, blocked drains, leak detection"></textarea>
         </div>
         <div class="field">
           <label for="location">Area / location</label>
-          <input id="location" placeholder="e.g. Johannesburg South">
+          <input id="location" maxlength="120" placeholder="e.g. Johannesburg South">
         </div>
         <div class="field">
           <label for="goal">Main website goal</label>
@@ -161,11 +161,11 @@
         </div>
         <div class="field">
           <label for="phone">Phone / WhatsApp</label>
-          <input id="phone" type="tel" placeholder="e.g. 083 123 4567">
+          <input id="phone" type="tel" maxlength="50" placeholder="e.g. 083 123 4567">
         </div>
         <div class="field">
           <label for="email">Business email</label>
-          <input id="email" type="email" placeholder="hello@yourbusiness.co.za">
+          <input id="email" type="email" maxlength="254" placeholder="hello@yourbusiness.co.za">
         </div>
         <div class="field full">
           <label>Business logo</label>
@@ -243,7 +243,7 @@
           <label for="customerMessage">Your message to ZionFlow (optional)</label>
           <textarea id="customerMessage" maxlength="1000" placeholder="Tell us what you like about the demo or what you would change."></textarea>
         </div>
-        <small class="hint">REQUEST THIS WEBSITE opens ZionFlow WhatsApp with your enquiry already written. Tap Send in WhatsApp to contact us. We also receive the demo screenshot and any uploaded logo for reference. No payment is taken.</small>
+        <small class="hint">REQUEST THIS WEBSITE opens the ZionFlow WhatsApp chat with your complete business and website details filled in. Tap Send in WhatsApp to submit your message. Your demo screenshot and uploaded logo are submitted separately to ZionFlow for reference, not attached to the WhatsApp message. No payment is taken.</small>
       </div>
       <div class="post-actions">
         <button class="btn btn-ghost" id="regenerate" type="button">UPDATE PREVIEW</button>
@@ -256,7 +256,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="./experience.js?v=adaptive-20261021a"></script>
-<script src="./share.js?v=whatsapp-request-20261020b"></script>
+<script src="./share.js?v=whatsapp-request-20261114brief"></script>
 <script src="./studio.js?v=premium-20261114a"></script>
 <script>
 (() => {

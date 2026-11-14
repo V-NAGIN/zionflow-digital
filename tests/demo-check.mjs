@@ -16,7 +16,7 @@ for (const marker of [
   'id="sitePreview"',
   'id="shareStatus"',
   'id="customerMessage"',
-  'src="./share.js?v=whatsapp-request-20261020b"',
+  'src="./share.js?v=whatsapp-request-20261114brief"',
   'zf-demo-rendered',
   'html2canvas.min.js',
   'REQUEST THIS WEBSITE',

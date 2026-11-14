@@ -37,8 +37,8 @@ for (const marker of [
   'SUBMISSION_ENDPOINT',
   "form.target = frame.name",
   'multipart/form-data',
-  "appendAttachment(form, 'demo_preview', files.png)",
-  "appendAttachment(form, 'logo_attachment', files.logo)",
+  "appendAttachment(form, item.field, item.file)",
+  "appendAttachment(form, item.field, item.file)",
   "appendHidden(form, '_captcha', 'false')",
   "button.addEventListener('click', requestDemo)",
 ]) {

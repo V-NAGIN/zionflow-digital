@@ -40,6 +40,12 @@ try {
   await page.locator('#buttonText').fill('Request an Appointment');
   await page.locator('#headingFont').selectOption('editorial');
   await page.locator('#imageMood').selectOption('soft');
+  await page.locator('#heroPhoto').setInputFiles({
+    name:'fictional-sample-business-photo.png',
+    mimeType:'image/png',
+    buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==','base64')
+  });
+
 
   const modern = page.locator('[data-style-choice="modern"]');
   await modern.click();
@@ -61,6 +67,9 @@ try {
   assert.ok((await page.locator('#zfContactSection').textContent()).includes('Tue–Sat, by appointment'));
   assert.ok((await page.locator('#zfContactSection').textContent()).includes('Local clients and bridal parties'));
   assert.ok(await page.locator('#sitePreview.type-editorial.image-soft').count() === 1);
+  assert.ok((await page.locator('#zfHeroVisual img').getAttribute('src')).startsWith('blob:'),
+    'Selected real business photo must appear in the preview');
+
   await page.locator('#customHeadline').fill('A studio that feels like you.');
   assert.equal(await page.locator('#heroTitle').textContent(),'A studio that feels like you.');
 

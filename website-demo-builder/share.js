@@ -22,11 +22,15 @@
   const MAX_LOGO_BYTES = 5 * 1024 * 1024;
   const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
   const MAX_COMBINED_BYTES = 9 * 1024 * 1024;
+  // One reference appears in both the WhatsApp message and the private email.
+  const REQUEST_REFERENCE = 'ZF-WEB-' + Date.now().toString(36).toUpperCase() + '-' +
+    Math.random().toString(36).slice(2, 7).toUpperCase();
 
   let captureVersion = 0;
   let snapshot = null;
   let snapshotPromise = null;
   let pendingRequestVersion = -1;
+  let pendingRequestKind = 'request';
   let submittedVersion = -1;
   let previewStale = false;
   let captureFailed = false;
@@ -53,7 +57,7 @@
 
   // WhatsApp click-to-chat accepts prefilled text, not automatic file attachments.
   // Include the full bounded customer brief and the current generated concept metadata.
-  function message() {
+  function message(kind = 'request') {
     const field = id => (byId(id)?.value || '').trim();
     const selected = id => {
       const el = byId(id);
@@ -65,7 +69,10 @@
       : selected('industry');
     const selectedLogo = logoInput.files?.[0];
     const lines = [
-      'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
+      kind === 'help'
+        ? 'Hi ZionFlow, I would like help building the website shown in my demo.'
+        : 'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
+      'Reference: ' + REQUEST_REFERENCE,
       '',
       '*WEBSITE REQUEST — CUSTOMER DETAILS*',
       'Business: ' + field('business'),
@@ -120,6 +127,7 @@
     const rows = [
       'Hi ZionFlow, I would like help creating a website for my business. Please guide me through the next steps.',
       '',
+      'Reference: ' + REQUEST_REFERENCE,
       '*WHAT I HAVE SO FAR*'
     ];
     function add(label, value) { if (value) rows.push(label + ': ' + value); }
@@ -132,6 +140,9 @@
     add('Email', val('email'));
     add('Website goal', val('industry') || val('business') ? select('goal') : '');
     add('Preferred design style', val('industry') || val('business') ? select('style') : '');
+    add('Brand colour', val('primary'));
+    add('Heading typography', val('industry') || val('business') ? select('headingFont') : '');
+    add('Photography style', val('industry') || val('business') ? select('imageMood') : '');
     add('Website headline', val('customHeadline'));
     add('Website message', val('customSubheading'));
     add('About the business', val('aboutStory'));
@@ -146,12 +157,23 @@
     add('Business photo chosen', heroPhotoInput?.files?.[0]?.name || '');
     if (demoWrap.classList.contains('show')) {
       add('Website preview', (byId('demoIndustry')?.textContent || '').trim());
+      add('Generated headline', (byId('heroTitle')?.textContent || '').trim());
+      add('Generated button', (byId('heroPrimary')?.textContent || '').trim());
     }
     rows.push('', 'I may need help with the website wording, images or layout.');
     return rows.join('\n');
   }
 
   function requestAssistance() {
+    if (demoWrap.classList.contains('show')) {
+      // Preview help is a submission too: archive the current design and all
+      // supplied details, rather than sending only a text WhatsApp enquiry.
+      if (previewStale && builderForm.checkValidity?.()) byId('regenerate')?.click();
+      pendingRequestVersion = captureVersion;
+      pendingRequestKind = 'help';
+      if (snapshot) archiveRequest(snapshot, captureVersion, 'help');
+      if (captureFailed) notice('WhatsApp is ready. We will send your full written brief, but the preview image may need to be shared in chat.', true);
+    }
     const url = 'https://wa.me/' + ZIONFLOW_WHATSAPP_NUMBER +
       '?text=' + encodeURIComponent(assistanceMessage());
     try {

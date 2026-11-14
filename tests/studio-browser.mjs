@@ -43,6 +43,7 @@ try {
   assert.ok(blankHelp[0].url.startsWith('https://wa.me/27833110552?text='), 'Help must reach ZionFlow WhatsApp');
   assert.ok(new URL(blankHelp[0].url).searchParams.get('text').includes('help creating a website'));
   assert.ok(!new URL(blankHelp[0].url).searchParams.get('text').includes('R499/month'), 'Help should not assume an order');
+  assert.ok(!new URL(blankHelp[0].url).searchParams.get('text').includes('Choose your industry'), 'Help should not treat placeholder as customer input');
   assert.equal(await page.locator('#demoWrap.show').count(),0,'Asking for help does not require a preview');
 
   await fill(page);

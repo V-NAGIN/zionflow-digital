@@ -151,3 +151,84 @@
 @media (prefers-reduced-motion: reduce) {
   .zf-studio-control { transition: none; }
 }
+
+/* Visual templates replace the plain appearance dropdown without altering its data model. */
+.zf-studio-native-style {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.zf-style-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.zf-style-option {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #dce4eb;
+  border-radius: 11px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.zf-style-option[aria-pressed="true"] {
+  border-color: #c9a227;
+  box-shadow: 0 0 0 2px rgba(201,162,39,.14);
+  background: #fffcf3;
+}
+.zf-style-option:focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 2px;
+}
+.zf-style-option strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 780;
+  color: #22364b;
+}
+.zf-style-option small {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  line-height: 1.4;
+  color: #6d7b89;
+}
+.zf-style-swatch {
+  display: block;
+  position: relative;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #10243b;
+}
+.zf-style-swatch i,
+.zf-style-swatch b,
+.zf-style-swatch em { position: absolute; display: block; }
+.zf-style-swatch i { top: 9px; left: 9px; width: 35%; height: 4px; background: #d0b56b; }
+.zf-style-swatch b { top: 19px; left: 9px; width: 52%; height: 10px; background: #eef2f4; }
+.zf-style-swatch em { top: 34px; left: 9px; width: 30%; height: 4px; background: #b1becb; }
+.zf-style-swatch-modern { background: #e7f2f6; }
+.zf-style-swatch-modern i { background: #0e6077; }
+.zf-style-swatch-modern b { background: #20445a; }
+.zf-style-swatch-modern em { background: #8bbbc4; }
+.zf-style-swatch-bold { background: #edc749; }
+.zf-style-swatch-bold i { background: #0f2034; width: 64%; height: 5px; }
+.zf-style-swatch-bold b { background: #0f2034; width: 70%; height: 13px; }
+.zf-style-swatch-bold em { background: #aa4a20; width: 34%; }
+.zf-style-swatch-minimal { background: #fbf9f4; border: 1px solid #e8e5db; }
+.zf-style-swatch-minimal i { background: #929c91; width: 25%; height: 1px; }
+.zf-style-swatch-minimal b { background: #283b35; width: 43%; height: 7px; }
+.zf-style-swatch-minimal em { background: #abb5ad; height: 2px; }
+@media(max-width:460px) {
+  .zf-style-picker { gap: 7px; }
+  .zf-style-option { padding: 7px; }
+}

@@ -34,6 +34,52 @@
     const file = document.getElementById('logo');
     if (file) file.setAttribute('aria-label', 'Upload your business logo');
 
+    // Visual design choices stay in sync with the original select and its existing renderer.
+    const styleSelect = document.getElementById('style');
+    const styleField = styleSelect?.closest('.field');
+    if (styleSelect && styleField) {
+      const picker = document.createElement('div');
+      picker.className = 'zf-style-picker';
+      picker.setAttribute('role', 'group');
+      picker.setAttribute('aria-label', 'Choose your website style');
+      const choices = [
+        ['premium', 'Premium', 'Refined & confident'],
+        ['modern', 'Modern', 'Clean & open'],
+        ['bold', 'Bold', 'Distinctive & energetic'],
+        ['minimal', 'Minimal', 'Quiet & elegant']
+      ];
+      const buttons = [];
+      choices.forEach(([value, label, description]) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'zf-style-option';
+        button.dataset.styleChoice = value;
+        button.innerHTML = '<span class="zf-style-swatch zf-style-swatch-' + value +
+          '" aria-hidden="true"><i></i><b></b><em></em></span>' +
+          '<strong></strong><small></small>';
+        button.querySelector('strong').textContent = label;
+        button.querySelector('small').textContent = description;
+        button.addEventListener('click', () => {
+          styleSelect.value = value;
+          styleSelect.dispatchEvent(new Event('change', {bubbles: true}));
+          refreshStyle();
+        });
+        picker.appendChild(button);
+        buttons.push(button);
+      });
+      function refreshStyle() {
+        buttons.forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.styleChoice === styleSelect.value));
+        });
+      }
+      styleField.appendChild(picker);
+      styleSelect.classList.add('zf-studio-native-style');
+      styleSelect.setAttribute('aria-hidden', 'true');
+      styleSelect.tabIndex = -1;
+      styleSelect.addEventListener('change', refreshStyle);
+      refreshStyle();
+    }
+
     const previewInfo = document.createElement('div');
     previewInfo.className = 'zf-studio-preview-note';
     previewInfo.textContent = 'Interactive concept preview. Final website details are confirmed with ZionFlow.';

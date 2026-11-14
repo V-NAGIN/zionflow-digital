@@ -25,6 +25,8 @@ assert.ok(request.includes('window.ZionFlowWebsiteAssistance = Object.freeze({op
   'Assistance must reach existing WhatsApp number through request module');
 assert.ok(request.includes('ZIONFLOW_WHATSAPP_NUMBER = \'27833110552\''), 'Existing WhatsApp destination unchanged');
 assert.ok(request.includes("button.addEventListener('click', requestDemo)"), 'Original website request preserved');
-assert.ok(request.includes("appendAttachment(form, 'demo_preview', files.png)"), 'Private preview intake preserved');
-assert.ok(request.includes("appendAttachment(form, 'logo_attachment', files.logo)"), 'Private logo intake preserved');
+assert.ok(request.includes("{field:'demo_preview', file:files.png"), 'Private preview intake preserved');
+assert.ok(request.includes("{field:'logo_attachment', file:files.logo"), 'Private logo intake preserved');
+assert.ok(request.includes("appendAttachment(form, item.field, item.file)"), 'File bundle is submitted');
+assert.ok(request.includes("appendHidden(form, 'complete_website_brief'"), 'Complete brief is attached to the intake');
 console.log('Easy guided builder, progressive disclosure and assisted WhatsApp route: OK');

@@ -25,6 +25,25 @@ try {
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   await fill(page);
+  await page.locator('#customHeadline').fill('Thoughtful beauty for every occasion.');
+  await page.locator('#customSubheading').fill('A welcoming studio offering hair, skin and bridal services.');
+  await page.locator('#aboutStory').fill('Our independent studio helps people feel confident and cared for.');
+  await page.locator('#serviceDetails').fill(
+    'Hair Styling | Individual cuts and styling consultations.\n' +
+    'Skin Treatments | Personalised facial treatments.\n' +
+    'Bridal Makeup | Occasion-ready artistry.'
+  );
+  await page.locator('#whyChoose').fill('Personal attention\nThoughtful consultations\nA calm atmosphere');
+  await page.locator('#faqDetails').fill('Do you take bookings? | Please contact our team to enquire.\nWhere are you located? | Johannesburg.');
+  await page.locator('#targetAudience').fill('Local clients and bridal parties');
+  await page.locator('#businessHours').fill('Tue–Sat, by appointment');
+  await page.locator('#buttonText').fill('Request an Appointment');
+  await page.locator('#headingFont').selectOption('editorial');
+  await page.locator('#imageMood').selectOption('soft');
+  // Reuse the repository's real sample image for a meaningful visual QA screenshot.
+  await page.locator('#heroPhoto').setInputFiles('beauty-demo/hero-800.webp');
+
+
   const modern = page.locator('[data-style-choice="modern"]');
   await modern.click();
   assert.equal(await page.locator('#style').inputValue(), 'modern');
@@ -32,6 +51,25 @@ try {
 
   await page.locator('#demoForm button[type="submit"]').click();
   await page.locator('#demoWrap.show').waitFor();
+  assert.equal(await page.locator('#heroTitle').textContent(),'Thoughtful beauty for every occasion.');
+  assert.equal(await page.locator('#heroCopy').textContent(),'A welcoming studio offering hair, skin and bridal services.');
+  assert.equal(await page.locator('#aboutCopy').textContent(),'Our independent studio helps people feel confident and cared for.');
+  assert.equal(await page.locator('#heroPrimary').textContent(),'Request an Appointment');
+  assert.equal(await page.locator('#serviceCards .service').count(),3);
+  assert.ok((await page.locator('#serviceCards').textContent()).includes('Individual cuts and styling consultations.'));
+  assert.ok((await page.locator('#serviceCards').textContent()).includes('Bridal Makeup'));
+  assert.ok((await page.locator('.trust').textContent()).includes('Personal attention'));
+  assert.equal(await page.locator('#zfFaqSection .zf-faq-item').count(),2);
+  assert.ok((await page.locator('#zfFaqSection').textContent()).includes('Do you take bookings?'));
+  assert.ok((await page.locator('#zfContactSection').textContent()).includes('Tue–Sat, by appointment'));
+  assert.ok((await page.locator('#zfContactSection').textContent()).includes('Local clients and bridal parties'));
+  assert.ok(await page.locator('#sitePreview.type-editorial.image-soft').count() === 1);
+  assert.ok((await page.locator('#zfHeroVisual img').getAttribute('src')).startsWith('blob:'),
+    'Selected real business photo must appear in the preview');
+
+  await page.locator('#customHeadline').fill('A studio that feels like you.');
+  assert.equal(await page.locator('#heroTitle').textContent(),'A studio that feels like you.');
+
   assert.ok(await page.locator('#sitePreview.style-modern.industry-beauty.goal-bookings').count() === 1);
   await page.locator('#demoWrap').screenshot({path:'artifacts/premium-desktop.png', animations:'disabled', timeout:20000});
 

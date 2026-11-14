@@ -46,6 +46,7 @@ function element(id, value = '') {
     remove() { this.removed = true; },
     reportValidity() { return true; },
     querySelector() { return null; },
+    querySelectorAll() { return []; },
     focus() {},
   };
 }
@@ -61,17 +62,29 @@ const values = {
   goal: 'enquiries',
   style: 'premium',
   primary: '#c9a227',
-  customerMessage: 'Please keep the gold header on my website.'
+  customerMessage: 'Please keep the gold header on my website.',
+  customHeadline: 'Fresh pastries, thoughtfully baked.',
+  customSubheading: 'Local bakery with coffee and takeaway favourites.',
+  aboutStory: 'Family-owned since 2020.',
+  serviceDetails: 'Custom Cakes | Orders for special celebrations',
+  whyChoose: 'Small batches; Friendly service',
+  faqDetails: 'Can I order ahead? | Contact us to discuss.',
+  targetAudience: 'Local families and offices',
+  businessHours: 'Mon–Sat 7am–4pm',
+  buttonText: 'Ask About Orders',
+  headingFont: 'editorial',
+  imageMood: 'soft'
 };
 
 const ids = Object.fromEntries(
-  ['quoteLink', 'shareStatus', 'sitePreview', 'logo', 'demoForm', 'demoWrap', 'regenerate', ...Object.keys(values)]
+  ['quoteLink', 'shareStatus', 'sitePreview', 'logo', 'heroPhoto', 'demoForm', 'demoWrap', 'regenerate', ...Object.keys(values)]
     .map(id => [id, element(id, values[id] || '')])
 );
 for (const id of ['industry', 'goal', 'style']) {
   ids[id].selectedOptions = [{textContent: values[id]}];
 }
 ids.logo.files = [new DemoFile(['fake-logo-binary'], 'bakery-logo.png', {type: 'image/png'})];
+ids.heroPhoto.files = [new DemoFile(['fake-photo-binary'], 'bakery-photo.png', {type: 'image/png'})];
 
 ids.demoIndustry = element('demoIndustry');
 ids.demoIndustry.textContent = 'Food & Restaurant · Premium & professional';
@@ -141,6 +154,20 @@ assert.ok(openedLinks[0].url.startsWith('https://wa.me/27833110552?text='));
 assert.match(decodeURIComponent(openedLinks[0].url), /R499\/month, up-to-3-page website/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Business: Pretend Bakery/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Please keep the gold header/);
+for (const part of [
+  'Fresh pastries, thoughtfully baked.',
+  'Local bakery with coffee and takeaway favourites.',
+  'Family-owned since 2020.',
+  'Custom Cakes | Orders for special celebrations',
+  'Small batches; Friendly service',
+  'Can I order ahead? | Contact us to discuss.',
+  'Local families and offices',
+  'Mon–Sat 7am–4pm',
+  'Ask About Orders',
+  'Heading typography: editorial',
+  'Photography style: soft',
+  'Business photo uploaded: Yes (bakery-photo.png)'
+]) assert.ok(new URL(openedLinks[0].url).searchParams.get('text').includes(part), 'Customer detail missing from WhatsApp: ' + part);
 
 const whatsappText = new URL(openedLinks[0].url).searchParams.get('text');
 for (const detail of [
@@ -186,9 +213,10 @@ assert.match(fields.message, /Please keep the gold header/);
 assert.ok(fields.source_page.startsWith('https://app.zionflow.co.za'));
 
 const files = submission.children.filter(child => child.type === 'file');
-assert.equal(files.length, 2, 'Background submission must contain image and logo');
+assert.equal(files.length, 3, 'Background submission must contain demo, logo and business photo');
 assert.equal(files.find(f => f.name === 'logo_attachment').files[0].name, 'bakery-logo.png');
 assert.ok(files.find(f => f.name === 'demo_preview').files[0].name.endsWith('-website-demo.png'));
+assert.equal(files.find(f => f.name === 'business_photo').files[0].name,'bakery-photo.png');
 
 ids.quoteLink.listeners.click();
 assert.equal(openedLinks.length, 2);

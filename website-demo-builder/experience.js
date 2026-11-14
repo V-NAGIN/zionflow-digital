@@ -271,6 +271,33 @@
     var submitted = clean(input.services, 500);
     var services = submitted.split(/[,;\n]+/).map(function (s) {return clean(s, 85);}).filter(Boolean);
     services = services.concat(profile.trust).slice(0, 3);
+    // A service can be supplied as "Service | description". Without a separator,
+    // its line adds descriptive detail to the corresponding original service.
+    var rows = clean(input.serviceDetails, 650).split(/\r?\n/).map(function (line) {
+      var i = line.indexOf('|');
+      return i >= 0
+        ? {title: clean(line.slice(0, i), 85), detail: clean(line.slice(i + 1), 200)}
+        : {title: '', detail: clean(line, 200)};
+    }).filter(function (row) { return row.title || row.detail; }).slice(0,3);
+    var anyTitles = rows.some(function (row) { return row.title; });
+    if (anyTitles) {
+      services = services.map(function (service, i) { return (rows[i] && rows[i].title) || service; });
+    }
+    var serviceDescriptions = services.map(function (service, i) {
+      return (rows[i] && rows[i].detail) || profile.serviceDetail;
+    });
+    var customPoints = clean(input.whyChoose, 280).split(/[\r\n;]+/).map(function (v) {
+      return clean(v, 94);
+    }).filter(Boolean).slice(0,3);
+    var trustPoints = profile.trust.map(function (text, i) { return customPoints[i] || text; });
+    var faqs = clean(input.faqDetails, 650).split(/\r?\n/).map(function (line) {
+      var separator = line.indexOf('|');
+      return separator >= 0 ? {
+        question: clean(line.slice(0, separator), 120),
+        answer: clean(line.slice(separator + 1), 240)
+      } : null;
+    }).filter(function (item) { return item && item.question && item.answer; }).slice(0, 3);
+    var audience = clean(input.targetAudience, 120);
     var firstTwo = services.slice(0, 2).join(' and ');
     var goalCopy = {
       enquiries: 'Explore ' + firstTwo + ' and ask us about what you need.',
@@ -285,20 +312,32 @@
     if (goal === 'bookings' && industry === 'professional') customAction = 'Book a Consultation';
     if (goal === 'bookings' && industry === 'education') customAction = 'Enquire About Sessions';
     if (goal === 'sales' && industry === 'restaurant') customAction = 'Explore Our Menu';
+    customAction = clean(input.buttonText, 44) || customAction;
+    var customerHeadline = clean(input.customHeadline, 100);
+    var customerSubheading = clean(input.customSubheading, 240);
+    var customerStory = clean(input.aboutStory, 500);
+    var headingFont = input.headingFont === 'editorial' ? 'editorial' : 'modern';
+    var imageMood = ['rich','soft'].indexOf(input.imageMood) >= 0 ? input.imageMood : 'natural';
 
     return {
       industry: industry, goal: goal, style: style,
-      category: profile.type, symbol: profile.symbol, photo: profile.photo || '',
+      category: profile.type, symbol: profile.symbol,
+      photo: /^blob:[a-z0-9:/._-]+$/i.test(input.uploadedPhoto || '') ? input.uploadedPhoto : (profile.photo || ''),
       name: name, industryLabel: industryLabel, location: location,
-      headline: profile.headlines[goal], kicker: profile.kicker,
-      copy: submitted ? goalCopy[goal] : profile.intro,
+      headline: customerHeadline || profile.headlines[goal], kicker: profile.kicker,
+      copy: customerSubheading || (submitted ? goalCopy[goal] : profile.intro),
       primaryAction: customAction, secondaryAction: conversion.secondary,
-      nav: conversion.nav, trust: profile.trust, services: services,
+      nav: conversion.nav, trust: trustPoints, services: services,
+      serviceDescriptions: serviceDescriptions, audience: audience, faqs: faqs,
+      businessHours: clean(input.businessHours,120),
+      email: clean(input.email, 254),
+      headingFont: headingFont, imageMood: imageMood,
       eyebrow: conversion.eyebrow, servicesHeading: conversion.section,
       serviceDetail: profile.serviceDetail,
-      about: profile.about, aboutLabel: profile.feature,
+      about: customerStory || profile.about, aboutLabel: customPoints[0] || profile.feature,
       goalOverline: conversion.overline, goalFeatureTitle: conversion.featureTitle,
-      goalFeatureCopy: conversion.featureCopy, goalSteps: conversion.steps,
+      goalFeatureCopy: audience ? 'Designed with ' + audience + ' in mind. ' + conversion.featureCopy : conversion.featureCopy,
+      goalSteps: conversion.steps,
       ctaTitle: conversion.ctaTitle, ctaCopy: conversion.ctaCopy,
       styleName: design.label, designDescriptor: design.descriptor,
       composition: design.composition, palette: profile.palette,
@@ -343,6 +382,20 @@
     }
     var serviceSection = site.querySelector('.section:not(.about)');
     if (serviceSection) serviceSection.classList.add('zf-services-section');
+    if (!site.querySelector('#zfFaqSection')) {
+      var faqSection = document.createElement('section');
+      faqSection.id = 'zfFaqSection';
+      faqSection.className = 'zf-faq-section';
+      faqSection.setAttribute('aria-label', 'Frequently asked questions');
+      site.appendChild(faqSection);
+    }
+    if (!site.querySelector('#zfContactSection')) {
+      var contact = document.createElement('section');
+      contact.id = 'zfContactSection';
+      contact.className = 'zf-contact-section';
+      contact.setAttribute('aria-label', 'Business contact details');
+      site.appendChild(contact);
+    }
     return site;
   }
 
@@ -350,7 +403,7 @@
     var media = document.getElementById('zfHeroVisual');
     if (!media) return;
     var photo = plan.photo
-      ? '<img class="zf-industry-photo" src="' + plan.photo + '" alt="" loading="eager" decoding="async">'
+      ? '<img class="zf-industry-photo" src="' + escapeHtml(plan.photo) + '" alt="" loading="eager" decoding="async">'
       : '<div class="zf-abstract-art"><span class="zf-orbit zf-orbit-one"></span><span class="zf-orbit zf-orbit-two"></span>' +
         iconSvg(plan.symbol) + '</div>';
     media.innerHTML =
@@ -390,15 +443,49 @@
     target.innerHTML = plan.services.map(function (service, i) {
       return '<div class="service"><i>0' + (i + 1) + '</i>' +
         '<strong>' + escapeHtml(service) + '</strong><p>' +
-        escapeHtml(plan.serviceDetail) + '</p></div>';
+        escapeHtml(plan.serviceDescriptions[i] || plan.serviceDetail) + '</p></div>';
     }).join('');
+  }
+
+  function drawFaq(plan) {
+    var target = document.getElementById('zfFaqSection');
+    if (!target) return;
+    target.hidden = plan.faqs.length === 0;
+    if (!plan.faqs.length) { target.innerHTML = ''; return; }
+    target.innerHTML = '<small>HELPFUL ANSWERS</small><h3>Questions, answered.</h3><div class="zf-faq-list">' +
+      plan.faqs.map(function (item) {
+        return '<article class="zf-faq-item"><h4>' + escapeHtml(item.question) +
+          '</h4><p>' + escapeHtml(item.answer) + '</p></article>';
+      }).join('') + '</div>';
+  }
+
+  function drawContact(plan) {
+    var target = document.getElementById('zfContactSection');
+    if (!target) return;
+    var entries = [
+      {label:'Phone / WhatsApp', value:plan.phone},
+      {label:'Email', value:plan.email},
+      {label:'Location', value:plan.location},
+      {label:'Business hours', value:plan.businessHours}
+    ].filter(function (item) { return item.value; });
+    var cards = entries.map(function (item) {
+      return '<div class="zf-contact-card"><span>' + escapeHtml(item.label) + '</span><strong>' +
+        escapeHtml(item.value) + '</strong></div>';
+    }).join('');
+    target.innerHTML =
+      '<span class="zf-contact-kicker">GET IN TOUCH</span>' +
+      '<h3>Let’s talk about what you need.</h3>' +
+      '<p>Contact ' + escapeHtml(plan.name) + ' using the details below.</p>' +
+      (plan.audience ? '<p class="zf-audience-line"><b>Who we serve:</b> ' + escapeHtml(plan.audience) + '</p>' : '') +
+      (entries.length ? '<div class="zf-contact-grid">' + cards + '</div>' : '');
   }
 
   function applyPlan(plan) {
     var site = ensureStructure();
     if (!site) return;
     site.className = 'site zf-experience industry-' + plan.industry +
-      ' goal-' + plan.goal + ' style-' + plan.style + ' layout-' + plan.category;
+      ' goal-' + plan.goal + ' style-' + plan.style + ' layout-' + plan.category +
+      ' type-' + plan.headingFont + ' image-' + plan.imageMood;
     site.style.setProperty('--primary', plan.primary);
     site.style.setProperty('--on-primary', contrastText(plan.primary));
     site.style.setProperty('--industry-hue', plan.palette);
@@ -441,7 +528,32 @@
     drawVisual(plan);
     drawSpotlight(plan);
     drawServices(plan);
+    drawFaq(plan);
+    drawContact(plan);
   }
+
+  var uploadedPhotoUrl = '';
+  var photoInput = typeof document.getElementById === 'function' ? document.getElementById('heroPhoto') : null;
+  if (photoInput) photoInput.addEventListener('change', function () {
+    var file = photoInput.files && photoInput.files[0];
+    var helper = document.getElementById('heroPhotoHelp');
+    if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
+    uploadedPhotoUrl = '';
+    if (file && (!['image/png','image/jpeg','image/webp'].includes(file.type) ||
+        file.size < 1 || file.size > 2 * 1024 * 1024)) {
+      photoInput.value = '';
+      if (helper) helper.textContent = 'Choose a JPG, PNG or WEBP business photo under 2 MB.';
+    } else if (file) {
+      uploadedPhotoUrl = URL.createObjectURL(file);
+      if (helper) helper.textContent = 'Photo selected: ' + file.name +
+        '. It will appear in your preview and be shared privately with ZionFlow if you request the website.';
+    } else if (helper) {
+      helper.textContent = 'Use a real business photo (JPG, PNG or WEBP under 2 MB), or leave blank for an industry image.';
+    }
+    var preview = document.getElementById('demoWrap');
+    var update = document.getElementById('regenerate');
+    if (preview && preview.classList.contains('show') && update) update.click();
+  });
 
   function collectInputs() {
     function val(id) {
@@ -451,7 +563,13 @@
     return {
       industry: val('industry'), goal: val('goal'), style: val('style'),
       name: val('business'), services: val('services'), location: val('location'),
-      otherIndustry: val('otherIndustry'), phone: val('phone'), primary: val('primary')
+      otherIndustry: val('otherIndustry'), phone: val('phone'), email: val('email'), primary: val('primary'),
+      customHeadline: val('customHeadline'), customSubheading: val('customSubheading'),
+      aboutStory: val('aboutStory'), serviceDetails: val('serviceDetails'), whyChoose: val('whyChoose'),
+      faqDetails: val('faqDetails'),
+      targetAudience: val('targetAudience'), businessHours: val('businessHours'),
+      buttonText: val('buttonText'), headingFont: val('headingFont'), imageMood: val('imageMood'),
+      uploadedPhoto: uploadedPhotoUrl
     };
   }
 
@@ -466,6 +584,25 @@
     if (!preview || !preview.classList.contains('show')) return;
     var update = document.getElementById('regenerate');
     if (update) update.click();
+  });
+
+  // Live visual edits are local-only. Screenshot preparation is refreshed by the
+  // unchanged request handler when the customer chooses Request This Website.
+  var liveEditFields = [
+    'customHeadline','customSubheading','aboutStory','serviceDetails','whyChoose','faqDetails',
+    'targetAudience','businessHours','buttonText','headingFont','imageMood'
+  ];
+  document.addEventListener('input', function (event) {
+    if (!event.target || liveEditFields.indexOf(event.target.id) < 0) return;
+    var preview = document.getElementById('demoWrap');
+    if (!preview || !preview.classList.contains('show')) return;
+    applyPlan(buildPlan(collectInputs()));
+  });
+  document.addEventListener('change', function (event) {
+    if (!event.target || liveEditFields.indexOf(event.target.id) < 0) return;
+    var preview = document.getElementById('demoWrap');
+    if (!preview || !preview.classList.contains('show')) return;
+    applyPlan(buildPlan(collectInputs()));
   });
 
   window.ZionFlowDemoExperience = Object.freeze({buildPlan: buildPlan});

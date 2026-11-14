@@ -8,6 +8,7 @@ on:
       - "tests/demo-check.mjs"
       - "tests/demo-variation.mjs"
       - "tests/demo-submission-flow.mjs"
+      - "tests/personalization-check.mjs"
       - ".github/workflows/publish-site.yml"
   workflow_dispatch:
 
@@ -34,6 +35,7 @@ jobs:
           node tests/demo-check.mjs
           node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
+          node tests/personalization-check.mjs
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static ZionFlow app website
@@ -53,7 +55,7 @@ jobs:
                curl --fail --location --silent --show-error --max-time 20 \
                 "https://app.zionflow.co.za/website-demo-builder/share.js?release=${stamp}" \
                 --output /tmp/zf-demo-live.js &&
-               grep -q 'whatsapp-request-20261114brief' /tmp/zf-demo-live.html &&
+               grep -q 'whatsapp-request-20261114personalised' /tmp/zf-demo-live.html &&
                grep -q "button.addEventListener('click', requestDemo)" /tmp/zf-demo-live.js &&
                grep -q "window.open(url, '_blank')" /tmp/zf-demo-live.js &&
                grep -q "form.target = frame.name" /tmp/zf-demo-live.js &&

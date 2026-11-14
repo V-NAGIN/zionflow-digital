@@ -10,9 +10,9 @@ const sharing = fs.readFileSync('website-demo-builder/share.js', 'utf8');
 new vm.Script(js, {filename: 'studio.js'});
 
 assert.ok(html.includes('studio.css?v=premium-20261114a'), 'Premium studio stylesheet should load');
-assert.ok(html.includes('studio.js?v=premium-20261114a'), 'Premium controls should load');
-assert.ok(html.indexOf('experience.js?v=adaptive-20261021a') < html.indexOf('studio.js?v=premium-20261114a'), 'Studio must enhance the original experience');
-assert.ok(html.indexOf('studio.js?v=premium-20261114a') < html.lastIndexOf('<script>'), 'Original inline form renderer remains last');
+assert.ok(html.includes('studio.js?v=premium-20261114-rich-20261114'), 'Premium controls should load');
+assert.ok(html.indexOf('experience.js?v=adaptive-20261021a') < html.indexOf('studio.js?v=premium-20261114-rich-20261114'), 'Studio must enhance the original experience');
+assert.ok(html.indexOf('studio.js?v=premium-20261114-rich-20261114') < html.lastIndexOf('<script>'), 'Original inline form renderer remains last');
 for (const field of ['demoForm', 'business', 'industry', 'services', 'goal', 'logo', 'style', 'primary', 'demoWrap', 'sitePreview', 'quoteLink']) {
   assert.ok(html.includes('id="' + field + '"'), 'Required customer field missing: ' + field);
 }

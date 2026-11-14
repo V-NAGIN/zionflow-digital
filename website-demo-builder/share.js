@@ -11,6 +11,7 @@
   const status = byId('shareStatus');
   const preview = byId('sitePreview');
   const logoInput = byId('logo');
+  const heroPhotoInput = byId('heroPhoto');
   const builderForm = byId('demoForm');
   const demoWrap = byId('demoWrap');
   if (!button || !status || !preview || !logoInput || !builderForm || !demoWrap) return;
@@ -79,6 +80,7 @@
       'Style: ' + selected('style'),
       'Brand colour: ' + (field('primary') || 'Not specified'),
       'Logo uploaded: ' + (selectedLogo ? 'Yes (' + selectedLogo.name + ')' : 'No'),
+      'Business photo uploaded: ' + (heroPhotoInput?.files?.[0] ? 'Yes (' + heroPhotoInput.files[0].name + ')' : 'No'),
       'Heading typography: ' + selected('headingFont'),
       'Photography style: ' + selected('imageMood'),
       '',
@@ -123,14 +125,14 @@
     if (typeof window.html2canvas !== 'function') {
       throw new Error('The preview capture service did not load.');
     }
-    const image = preview.querySelector('img');
-    if (image && !image.complete) {
-      await new Promise(resolve => {
+    const images = Array.from(preview.querySelectorAll('img'));
+    await Promise.all(images.filter(image => !image.complete).map(image =>
+      new Promise(resolve => {
         image.addEventListener('load', resolve, {once: true});
         image.addEventListener('error', resolve, {once: true});
         setTimeout(resolve, 2500);
-      });
-    }
+      })
+    ));
     const canvas = await window.html2canvas(preview, {
       backgroundColor: '#ffffff',
       useCORS: true,
@@ -145,6 +147,16 @@
     const file = await canvasFile(canvas);
     if (file.size < 1 || file.size > MAX_PREVIEW_BYTES) {
       throw new Error('The website preview image is too large to send.');
+    }
+    return file;
+  }
+
+  function preparedHeroPhoto() {
+    const file = heroPhotoInput?.files?.[0] || null;
+    if (!file) return null;
+    if (file.size < 1 || file.size > 2 * 1024 * 1024 ||
+        !['image/png','image/jpeg','image/webp'].includes(file.type)) {
+      throw new Error('The selected business photo is invalid or exceeds 2 MB.');
     }
     return file;
   }
@@ -206,9 +218,15 @@
   // FormSubmit does not provide a delivery receipt here; do not claim delivery.
   function archiveRequest(files, version) {
     if (!files || !files.png || submittedVersion === version) return;
-    if (files.png.size + (files.logo ? files.logo.size : 0) > MAX_COMBINED_BYTES) {
+    const essentialSize = files.png.size + (files.logo ? files.logo.size : 0);
+    if (essentialSize > MAX_COMBINED_BYTES) {
       notice('WhatsApp is ready. The demo image and logo were too large for automatic delivery.', true);
       return;
+    }
+    const photoForDelivery = files.hero && essentialSize + files.hero.size <= MAX_COMBINED_BYTES
+      ? files.hero : null;
+    if (files.hero && !photoForDelivery) {
+      notice('WhatsApp is ready. Please send your business photo in the chat as it exceeded the attachment limit.', true);
     }
 
     const frame = document.createElement('iframe');
@@ -237,10 +255,12 @@
     appendHidden(form, 'source_page', window.location.origin + window.location.pathname);
     appendHidden(form, 'preview_image_file', files.png.name);
     appendHidden(form, 'logo_image_file', files.logo ? files.logo.name : 'No logo uploaded');
+    appendHidden(form, 'business_photo_file', files.hero ? files.hero.name : 'No business photo uploaded');
 
     try {
       appendAttachment(form, 'demo_preview', files.png);
       if (files.logo) appendAttachment(form, 'logo_attachment', files.logo);
+      if (photoForDelivery) appendAttachment(form, 'business_photo', photoForDelivery);
       document.body.appendChild(form);
       submittedVersion = version;
       form.submit();
@@ -263,10 +283,10 @@
     button.textContent = 'REQUEST THIS WEBSITE';
     notice('');
 
-    snapshotPromise = Promise.all([captureScreenshot(), preparedLogo()])
-      .then(([png, logo]) => {
+    snapshotPromise = Promise.all([captureScreenshot(), preparedLogo(), preparedHeroPhoto()])
+      .then(([png, logo, hero]) => {
         if (version !== captureVersion) return;
-        snapshot = {png, logo};
+        snapshot = {png, logo, hero};
         if (pendingRequestVersion === version) archiveRequest(snapshot, version);
       })
       .catch(() => {

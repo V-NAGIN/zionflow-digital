@@ -61,7 +61,18 @@ const values = {
   goal: 'enquiries',
   style: 'premium',
   primary: '#c9a227',
-  customerMessage: 'Please keep the gold header on my website.'
+  customerMessage: 'Please keep the gold header on my website.',
+  customHeadline: 'Fresh pastries, thoughtfully baked.',
+  customSubheading: 'Local bakery with coffee and takeaway favourites.',
+  aboutStory: 'Family-owned since 2020.',
+  serviceDetails: 'Custom Cakes | Orders for special celebrations',
+  whyChoose: 'Small batches; Friendly service',
+  faqDetails: 'Can I order ahead? | Contact us to discuss.',
+  targetAudience: 'Local families and offices',
+  businessHours: 'Mon–Sat 7am–4pm',
+  buttonText: 'Ask About Orders',
+  headingFont: 'editorial',
+  imageMood: 'soft'
 };
 
 const ids = Object.fromEntries(
@@ -141,6 +152,19 @@ assert.ok(openedLinks[0].url.startsWith('https://wa.me/27833110552?text='));
 assert.match(decodeURIComponent(openedLinks[0].url), /R499\/month, up-to-3-page website/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Business: Pretend Bakery/);
 assert.match(decodeURIComponent(openedLinks[0].url), /Please keep the gold header/);
+for (const part of [
+  'Fresh pastries, thoughtfully baked.',
+  'Local bakery with coffee and takeaway favourites.',
+  'Family-owned since 2020.',
+  'Custom Cakes | Orders for special celebrations',
+  'Small batches; Friendly service',
+  'Can I order ahead? | Contact us to discuss.',
+  'Local families and offices',
+  'Mon–Sat 7am–4pm',
+  'Ask About Orders',
+  'Heading typography: editorial',
+  'Photography style: soft'
+]) assert.ok(new URL(openedLinks[0].url).searchParams.get('text').includes(part), 'Customer detail missing from WhatsApp: ' + part);
 
 const whatsappText = new URL(openedLinks[0].url).searchParams.get('text');
 for (const detail of [

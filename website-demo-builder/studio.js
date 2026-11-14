@@ -26,7 +26,8 @@
     }
 
     addSection('business', '01', 'Business details', 'Tell us what your business offers.');
-    addSection('logo', '02', 'Look & feel', 'Add your identity and choose the design direction.');
+    addSection('customHeadline', '02', 'Your website content', 'Make the words, services and key details genuinely yours.');
+    addSection('logo', '03', 'Look & feel', 'Add your identity and choose the design direction.');
 
     const headerLabel = builder.querySelector('.eyebrow');
     if (headerLabel) headerLabel.textContent = 'ZIONFLOW / FREE WEBSITE STUDIO';

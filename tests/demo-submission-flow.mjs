@@ -241,14 +241,32 @@ ids.quoteLink.listeners.click();
 assert.equal(openedLinks.length, 2);
 assert.equal(createdForms.length, 1, 'Repeated clicks must not double-submit attachments');
 
+// Assistance AFTER a preview is generated must privately archive the whole
+// brief, sharing the same reference as the first WhatsApp request.
+browser.ZionFlowWebsiteAssistance.open();
+assert.equal(openedLinks.length, 3);
+assert.equal(createdForms.length, 2, 'Help after preview must separately archive the concept');
+const helpFields = Object.fromEntries(createdForms[1].children.filter(child => child.type === 'hidden').map(child => [child.name, child.value]));
+assert.equal(helpFields.request_type, 'Help finishing custom demo');
+assert.equal(helpFields.request_reference, fields.request_reference);
+assert.ok(helpFields.complete_website_brief.includes('Please help me plan and finish this website.'));
+
+// A later update to the customer's notes must not be silently lost.
+ids.customerMessage.value = 'Please add an online ordering section as well.';
+ids.quoteLink.listeners.click();
+assert.equal(createdForms.length, 3, 'Updated requirements must produce a revised intake');
+const revisedFields = Object.fromEntries(createdForms[2].children.filter(child => child.type === 'hidden').map(child => [child.name, child.value]));
+assert.ok(revisedFields.complete_website_brief.includes('online ordering section'));
+assert.equal(revisedFields.request_type, 'Request this website');
+
 browser.html2canvas = async () => {throw new Error('Simulated screenshot failure');};
 listeners.get('zf-demo-rendered')();
 await new Promise(resolve => setTimeout(resolve, 10));
 assert.equal(ids.quoteLink.disabled, false, 'WhatsApp request must work when optional image preparation fails');
 ids.quoteLink.listeners.click();
-assert.equal(openedLinks.length, 3);
-assert.equal(createdForms.length, 2, 'Even with a broken screenshot the complete brief must still be submitted');
-const fallback = createdForms[1];
+assert.equal(openedLinks.length, 5);
+assert.equal(createdForms.length, 4, 'Even with a broken screenshot the complete brief must still be submitted');
+const fallback = createdForms[3];
 const fallbackFields = Object.fromEntries(fallback.children.filter(child => child.type === 'hidden').map(child => [child.name, child.value]));
 assert.equal(fallbackFields.request_reference, fields.request_reference);
 assert.equal(fallbackFields.preview_image_file, 'Screenshot unavailable');

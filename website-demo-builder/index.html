@@ -107,6 +107,7 @@
   <link rel="stylesheet" href="./experience.css?v=adaptive-20261021a">
   <link rel="stylesheet" href="./studio.css?v=premium-20261114a">
   <link rel="stylesheet" href="./customize.css?v=personalised-20261114a">
+  <link rel="stylesheet" href="./guided.css?v=easier-20261114a">
 </head>
 <body>
 <div class="wrap">
@@ -114,10 +115,22 @@
     <div class="head">
       <span class="eyebrow">Free custom website preview</span>
       <h1>See your business as a real website.</h1>
-      <p class="intro">Add your logo and a few business details. ZionFlow will instantly build a tailored demo layout around your industry so you can see the direction before requesting a quote.</p>
+      <p class="intro">Start with a few details and see a website designed around your business. Make it your own, or ask ZionFlow to guide you.</p>
+      <div class="zf-easy-paths" role="group" aria-label="Choose how to begin">
+        <a class="zf-easy-path zf-easy-path-main" href="#demoForm">I'll create my preview <span aria-hidden="true">↗</span></a>
+        <button class="zf-easy-path zf-easy-path-help" id="zfAssistHeader" type="button">Let ZionFlow help me <span aria-hidden="true">↗</span></button>
+      </div>
     </div>
 
     <form class="form" id="demoForm">
+      <div class="zf-easy-start">
+        <div>
+          <span class="zf-easy-step-label">STEP 1 OF 2 · QUICK START</span>
+          <h2>Tell us the basics.</h2>
+          <p>Just your business name, industry and services to start. Everything else can be added later.</p>
+        </div>
+        <span class="zf-easy-status" id="zfEssentialsStatus" role="status" aria-live="polite">0 of 3 essentials ready</span>
+      </div>
       <div class="grid">
         <div class="field">
           <label for="business">Business name</label>
@@ -145,7 +158,8 @@
         </div>
         <div class="field full">
           <label for="services">What does your business do?</label>
-          <textarea id="services" required maxlength="700" placeholder="Example: Emergency plumbing, geyser repairs, blocked drains, leak detection"></textarea>
+          <textarea id="services" required maxlength="700" placeholder="For example: We provide plumbing repairs, geyser installations and emergency callouts."></textarea>
+          <small class="zf-field-help">A simple sentence is fine. ZionFlow will organise it into your preview.</small>
         </div>
         <div class="field">
           <label for="location">Area / location</label>
@@ -255,7 +269,15 @@
       </div>
       <p class="privacy">Your business details, logo and preview stay in your browser until you request the website. When you request it, your full website brief opens in WhatsApp ready to send, while the demo screenshot, uploaded logo and any business photo are shared privately with ZionFlow through a separate submission for follow-up. Do not enter confidential information.</p>
       <div class="actions">
-        <button class="btn btn-primary" type="submit">GENERATE MY CUSTOM DEMO</button>
+        <button class="btn btn-primary" type="submit">SHOW MY WEBSITE PREVIEW</button>
+      </div>
+      <div class="zf-easy-assistance">
+        <span class="zf-easy-assistance-icon" aria-hidden="true">?</span>
+        <div>
+          <strong>Not sure what to write?</strong>
+          <p>You don't need to know anything about websites. Tell ZionFlow what you do and we can help plan the design with you.</p>
+        </div>
+        <button type="button" id="zfAssistForm" class="zf-easy-assist-action">Get help on WhatsApp <span aria-hidden="true">↗</span></button>
       </div>
     </form>
 
@@ -304,7 +326,11 @@
           <label for="customerMessage">Your message to ZionFlow (optional)</label>
           <textarea id="customerMessage" maxlength="1000" placeholder="Tell us what you like about the demo or what you would change."></textarea>
         </div>
-        <small class="hint">REQUEST THIS WEBSITE opens the ZionFlow WhatsApp chat with your complete business and website details filled in. Tap Send in WhatsApp to submit your message. Your demo screenshot and uploaded logo are submitted separately to ZionFlow for reference, not attached to the WhatsApp message. No payment is taken.</small>
+        <small class="hint">REQUEST THIS WEBSITE opens ZionFlow WhatsApp with your details filled in. Tap Send to contact us. Your demo screenshot, logo and any uploaded business photo are sent separately through the private enquiry form; they do not attach to WhatsApp. No payment is taken.</small>
+        <div class="zf-easy-preview-help">
+          <div><strong>Like this design, but want a few changes?</strong><span>Ask ZionFlow for help with the wording, pictures or layout.</span></div>
+          <button type="button" id="zfAssistPreview" class="zf-easy-assist-action">Ask ZionFlow for help <span aria-hidden="true">↗</span></button>
+        </div>
       </div>
       <div class="post-actions">
         <button class="btn btn-ghost" id="regenerate" type="button">UPDATE PREVIEW</button>
@@ -319,6 +345,7 @@
 <script src="./experience.js?v=adaptive-20261021a-rich-20261114"></script>
 <script src="./share.js?v=whatsapp-request-20261114personalised"></script>
 <script src="./studio.js?v=premium-20261114-rich-20261114"></script>
+<script src="./guided.js?v=easier-20261114a"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);

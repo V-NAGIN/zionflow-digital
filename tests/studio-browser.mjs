@@ -163,6 +163,19 @@ try {
   await page.locator('[data-style-choice="minimal"]').click();
   await page.locator('#regenerate').click();
   await page.locator('#sitePreview.style-minimal').waitFor();
+  await page.locator('#quoteLink').click();
+  for (let tries = 0; tries < 40 && interceptedIntakes.length < 2; tries++) {
+    await page.waitForTimeout(150);
+  }
+  assert.equal(interceptedIntakes.length,2,'Request after design changes should archive the latest preview');
+  const finalUpload = interceptedIntakes[1].body;
+  assert.ok(finalUpload.includes('Request this website'),'Final archive must be typed as a website request');
+  assert.ok(finalUpload.includes('name="website_brief"'),'Final archive should attach its whole written brief');
+  assert.ok(finalUpload.includes('name="demo_preview"'),'Final archive should attach the refreshed preview screenshot');
+  const finalChat = await page.evaluate(() => window.__zfAssistOpened.at(-1)?.url || '');
+  const finalText = new URL(finalChat).searchParams.get('text') || '';
+  assert.ok(finalText.includes('R499/month, up-to-3-page website'),'Normal request must retain established offer');
+  assert.ok(finalText.includes('A studio that feels like you.'),'Normal request must include latest customer copy');
   if(errors.length) throw new Error('Browser JavaScript errors: '+errors.join('; '));
   console.log('Desktop / mobile toggle / expanded edit / style choice: OK', mobile);
   await page.close();

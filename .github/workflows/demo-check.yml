@@ -7,6 +7,7 @@ on:
       - "tests/demo-check.mjs"
       - "tests/demo-variation.mjs"
       - "tests/demo-submission-flow.mjs"
+      - "tests/studio-check.mjs"
       - ".github/workflows/demo-check.yml"
   pull_request:
     paths:
@@ -27,6 +28,7 @@ jobs:
       - name: Check demo JavaScript and integration
         run: |
           node tests/demo-check.mjs
+          node tests/studio-check.mjs
           node tests/demo-variation.mjs
           node tests/demo-submission-flow.mjs
       - name: Diagnose live site origin and script

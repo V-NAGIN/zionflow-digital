@@ -1,0 +1,80 @@
+/* Customer personalisation and richer, realistic concept website preview.
+   The preview is a concept only; no fabricated reviews, projects or testimonials. */
+.zf-optional { color:#8492a2; font-weight:500; font-size:11px; }
+.zf-field-help { color:#758595; font-size:11px; line-height:1.55; margin-top:-3px; }
+.form .field textarea { min-height:84px; }
+.form .field textarea#aboutStory,.form .field textarea#serviceDetails { min-height:113px; }
+.form .field textarea#whyChoose { min-height:90px; }
+.site.zf-experience.type-editorial h2,
+.site.zf-experience.type-editorial .section h3,
+.site.zf-experience.type-editorial .zf-feature-intro h3,
+.site.zf-experience.type-editorial .final-cta h4 {
+  font-family: Georgia,"Times New Roman",serif;
+  font-weight:500;
+  letter-spacing:-.045em;
+  text-transform:none;
+}
+.site.zf-experience.image-rich .zf-industry-photo { filter:saturate(1.07) contrast(1.12); }
+.site.zf-experience.image-soft .zf-industry-photo { filter:saturate(.7) contrast(.94); }
+.site.zf-experience.image-rich .zf-abstract-art { filter:contrast(1.12); }
+.site.zf-experience.image-soft .zf-abstract-art { filter:saturate(.7); }
+.site.zf-experience .zf-services-section h3 { max-width:640px; }
+.site.zf-experience .service {
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:20px 17px;
+  overflow-wrap:anywhere;
+}
+.site.zf-experience .service strong { font-size:14px; line-height:1.35; margin-top:14px; }
+.site.zf-experience .service p { margin-top:8px; font-size:11px; line-height:1.65; color:#5f6d79; }
+.site.zf-experience .about p { font-size:12px; line-height:1.75; color:#596979; }
+.site.zf-experience .about-card { min-height:185px; }
+.site.zf-experience .zf-contact-section {
+  order:6;
+  background:#f9fafc;
+  padding:30px 25px 33px;
+  border-top:1px solid #e4e8eb;
+  border-bottom:1px solid #e4e8eb;
+}
+.site.zf-experience .final-cta { order:7; }
+.site.zf-experience .zf-contact-kicker {
+  display:block; color:var(--industry-hue); letter-spacing:.14em;
+  font-size:9px; font-weight:900; text-transform:uppercase;
+}
+.site.zf-experience .zf-contact-section h3 {
+  margin:6px 0 7px; font-size:24px; line-height:1.22; letter-spacing:-.035em;
+}
+.site.zf-experience .zf-contact-section > p {
+  margin:0; color:#6b7784; font-size:11px; line-height:1.65;
+}
+.site.zf-experience .zf-contact-grid {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:20px;
+}
+.site.zf-experience .zf-contact-card {
+  background:#fff; border:1px solid #e2e7ed; border-radius:10px; padding:14px;
+  min-width:0;
+}
+.site.zf-experience .zf-contact-card span {
+  display:block; color:#74818f; font-size:9px; font-weight:800; letter-spacing:.085em; text-transform:uppercase;
+}
+.site.zf-experience .zf-contact-card strong {
+  display:block; color:#21364a; font-size:12px; font-weight:720; margin-top:7px; line-height:1.5;
+  overflow-wrap:anywhere; white-space:pre-wrap;
+}
+.site.zf-experience .zf-audience-line {
+  display:block; color:#536476; font-size:11px; line-height:1.65; margin-top:10px;
+}
+.site.zf-experience .zf-audience-line b { color:#23364a; }
+.site.zf-experience .zf-hero-copy p { overflow-wrap:anywhere; }
+.site.zf-experience .zf-feature-intro p { font-size:11px; line-height:1.65; }
+@media(max-width:620px){
+  .site.zf-experience .zf-contact-section { padding:27px 16px; }
+  .site.zf-experience .zf-contact-grid { grid-template-columns:minmax(0,1fr); }
+  .site.zf-experience .zf-contact-section h3 { font-size:22px; }
+  .site.zf-experience .service { min-height:unset; }
+}
+.zf-preview-mobile .site.zf-experience .zf-contact-section { padding:27px 16px; }
+.zf-preview-mobile .site.zf-experience .zf-contact-grid { grid-template-columns:minmax(0,1fr); }
+@media(prefers-reduced-motion:reduce){.site.zf-experience * { scroll-behavior:auto!important; }}

@@ -277,4 +277,28 @@ assert.ok(!fallbackFiles.some(child => child.name === 'demo_preview'), 'Failed s
 assert.ok(fallbackFiles.some(child => child.name === 'website_brief'), 'Text attachment must survive capture failure');
 assert.match(ids.shareStatus.textContent, /preview image|missing images/i);
 
+// Campaign visitors should receive the advertised, conditional Black Friday
+// enquiry message, not the standard R499 offer. Attribution travels in both
+// WhatsApp and the private email handoff.
+browser.location.search = '?utm_source=facebook&utm_medium=paid_social&utm_campaign=zf_black_friday_349_nov2026';
+ids.quoteLink.listeners.click();
+assert.equal(openedLinks.length, 6);
+assert.equal(createdForms.length, 5, 'Campaign source should update the archived brief');
+const taggedText = new URL(openedLinks[5].url).searchParams.get('text');
+assert.match(taggedText, /Black Friday 3-page website offer at R349\/month/);
+assert.match(taggedText, /confirm the promotional subscription terms/);
+assert.ok(!taggedText.includes('discuss the R499/month'), 'Do not present standard rate to campaign visitors');
+assert.match(taggedText, /Lead source: facebook/);
+assert.match(taggedText, /Campaign: zf_black_friday_349_nov2026/);
+const taggedFields = Object.fromEntries(createdForms[4].children.filter(child => child.type === 'hidden').map(child => [child.name, child.value]));
+assert.equal(taggedFields.utm_campaign, 'zf_black_friday_349_nov2026');
+assert.equal(taggedFields.utm_source, 'facebook');
+assert.equal(taggedFields.utm_medium, 'paid_social');
+assert.equal(taggedFields.request_reference, fields.request_reference);
+
+browser.ZionFlowWebsiteAssistance.open();
+const taggedHelpText = new URL(openedLinks.at(-1).url).searchParams.get('text');
+assert.match(taggedHelpText, /Campaign: zf_black_friday_349_nov2026/);
+assert.match(taggedHelpText, /Lead source: facebook/);
+
 console.log('WhatsApp request, hidden attachment submission, duplicate safety and fallback: OK');

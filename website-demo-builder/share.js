@@ -57,6 +57,22 @@
 
   // WhatsApp click-to-chat accepts prefilled text, not automatic file attachments.
   // Include the full bounded customer brief and the current generated concept metadata.
+  function sourceParam(key) {
+    const query = String(window.location.search || '').slice(0, 1600);
+    const match = query.match(new RegExp('(?:\\?|&)' + key + '=([^&]*)', 'i'));
+    if (!match) return '';
+    try { return decodeURIComponent(match[1].replace(/\\+/g, ' ')).trim().slice(0, 100); }
+    catch (_) { return ''; }
+  }
+
+  const CAMPAIGN_ID = 'zf_black_friday_349_nov2026';
+  const isBlackFridayVisit = () => sourceParam('utm_campaign') === CAMPAIGN_ID;
+  function sourceLines() {
+    const keys = [['Campaign','utm_campaign'],['Lead source','utm_source'],['Channel','utm_medium']];
+    const lines = keys.map(([label,key]) => sourceParam(key) ? label + ': ' + sourceParam(key) : '').filter(Boolean);
+    return lines.length ? ['','*HOW THIS LEAD FOUND ZIONFLOW*',...lines] : [];
+  }
+
   function message(kind = 'request') {
     const field = id => (byId(id)?.value || '').trim();
     const selected = id => {
@@ -71,7 +87,9 @@
     const lines = [
       kind === 'help'
         ? 'Hi ZionFlow, I would like help building the website shown in my demo.'
-        : 'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
+        : isBlackFridayVisit()
+          ? 'Hi ZionFlow, I saw the Black Friday 3-page website offer at R349/month. Please confirm the promotional subscription terms before I proceed.'
+          : 'Hi ZionFlow, I like my custom website demo and would like to discuss the R499/month, up-to-3-page website.',
       'Reference: ' + REQUEST_REFERENCE,
       '',
       '*WEBSITE REQUEST — CUSTOMER DETAILS*',
@@ -106,6 +124,8 @@
       'Preview: ' + (shown('demoIndustry') || 'Custom website concept'),
       'Website headline: ' + (shown('heroTitle') || 'Not available'),
       'Website button: ' + (shown('heroPrimary') || 'Not available'),
+      '',
+      ...sourceLines(),
       '',
       '*CUSTOMER NOTES*',
       field('customerMessage') || 'No additional message',
@@ -161,7 +181,7 @@
       add('Generated headline', (byId('heroTitle')?.textContent || '').trim());
       add('Generated button', (byId('heroPrimary')?.textContent || '').trim());
     }
-    rows.push('', 'I may need help with the website wording, images or layout.');
+    rows.push(...sourceLines(), '', 'I may need help with the website wording, images or layout.');
     return rows.join('\n');
   }
 
@@ -369,6 +389,9 @@
     appendHidden(form, '_honey', '');
     appendHidden(form, 'request_reference', REQUEST_REFERENCE);
     appendHidden(form, 'request_type', kind === 'help' ? 'Help finishing custom demo' : 'Request this website');
+    appendHidden(form, 'utm_source', sourceParam('utm_source'));
+    appendHidden(form, 'utm_medium', sourceParam('utm_medium'));
+    appendHidden(form, 'utm_campaign', sourceParam('utm_campaign'));
     appendHidden(form, 'business_name', byId('business').value.trim());
     appendHidden(form, 'email', byId('email').value.trim());
     appendHidden(form, 'phone', byId('phone').value.trim());

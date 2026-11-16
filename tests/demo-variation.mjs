@@ -94,7 +94,7 @@ assert.ok(css.includes('@media(max-width:620px)'), 'Mobile layout must be implem
 assert.ok(css.includes('grid-template-columns'), 'Preview design must use responsive compositions');
 assert.ok(html.includes('experience.css?v=adaptive-20261021a'), 'Browser must load the new CSS');
 assert.ok(html.includes('experience.js?v=adaptive-20261021a'), 'Browser must load the new personalisation engine');
-assert.ok(html.indexOf('experience.js?v=adaptive-20261021a') < html.indexOf('share.js?v=whatsapp-request-20261114fullbrief'), 'Personalization must run before screenshot capture');
+assert.ok(html.indexOf('experience.js?v=adaptive-20261021a') < html.indexOf('share.js?v=whatsapp-request-20261116blackfriday'), 'Personalization must run before screenshot capture');
 
 // Existing customer interaction is deliberately unchanged.
 for (const marker of ['id="demoForm"', 'id="logo"', 'id="industry"', 'id="goal"', 'id="style"',
